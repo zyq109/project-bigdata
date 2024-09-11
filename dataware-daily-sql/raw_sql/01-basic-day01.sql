@@ -17,16 +17,51 @@ USE hive_sql_zg5 ;
 
 -- todo: 1.1、简单查询
 -- 1）、检索课程编号为“04”且分数小于60的学生的课程信息，结果按分数降序排列；
+SELECT
+    stu_id
+     , course_id
+     , score
+FROM hive_sql_zg5.score_info
+WHERE course_id='04' AND score<60
+order by score desc ;
+
+
+
 
 
 -- 2）、查询数学成绩不及格的学生和其对应的成绩，按照学号升序排序；
 
 
+SELECT
+    stu_id
+     ,course_id
+     ,score
+FROM hive_sql_zg5.score_info
+WHERE course_id =
+      (SELECT course_id
+        FROM hive_sql_zg5.course_info
+        WHERE course_name='数学')
+and score<60
+order by stu_id;
+
 
 -- 3）、查询姓名中带“冰”的学生名单；
 
+SELECT
+    stu_id
+     , stu_name
+     , birthday
+     , sex
+FROM hive_sql_zg5.student_info
+where stu_name like '%冰%' ;
+
 
 -- 4）、查询姓“王”老师的个数；
+
+SELECT
+    count(tea_id)
+FROM hive_sql_zg5.teacher_info
+WHERE tea_name LIKE '王%';
 
 
 -- todo：1.2、汇总分析
@@ -39,7 +74,10 @@ USE hive_sql_zg5 ;
 		min 最小
 */
 -- 1）、查询编号为“02”的课程的总成绩；
-
+SELECT
+    sum(score)
+FROM hive_sql_zg5.score_info
+WHERE course_id = '02';
 
 
 -- 2）、查询参加考试的学生个数；
@@ -49,6 +87,14 @@ USE hive_sql_zg5 ;
     案例剖析：https://blog.51cto.com/u_16099335/6687050
 */
 
+SELECT
+    count(stu_id) as cnt_stu
+FROM (
+SELECT
+    stu_id
+FROM hive_sql_zg5.score_info
+group by stu_id )
+as t1;
 
 
 
@@ -56,6 +102,8 @@ USE hive_sql_zg5 ;
 -- 查询日志
 [bwie@node101 ~]$ hv.sh beeline
     执行SQL语句，查看运行日志
+
+
 
 -- 查询计划
 explain SELECT ....
