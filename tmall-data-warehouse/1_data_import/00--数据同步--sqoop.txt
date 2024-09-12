@@ -1,0 +1,16 @@
+
+
+SQOOP 同步数据
+    sqoop import 将数据从MySQL表同步到HDFS
+    sqoop export 将数据从HDFS同步到MySQL表
+
+
+启动服务
+    hdp.sh hdfs
+    hdp.sh yarn
+    hv.sh start
+
+[bwie@node101 ~]$ jpsall
+
+
+

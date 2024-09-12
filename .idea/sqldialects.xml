@@ -4,5 +4,6 @@
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/raw_sql/00-table-basic.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/raw_sql/01-basic-day01.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/raw_sql/02-basic-day02.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/raw_sql/03-basic-day03.sql" dialect="HiveQL" />
   </component>
 </project>
