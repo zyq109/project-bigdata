@@ -5,6 +5,7 @@
 # ======================================================================
 # sku 平台属性表
 
+
 /opt/module/sqoop/bin/sqoop import \
 --connect jdbc:mysql://node101:3306/gmall \
 --username root \

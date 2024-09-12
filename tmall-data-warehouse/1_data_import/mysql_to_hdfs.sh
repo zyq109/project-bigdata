@@ -604,6 +604,7 @@ case $1 in
 ;;
 esac
 
+
 #
 # chmod u+x mysql_to_hdfs.sh
 # sh mysql_to_hdfs.sh base_dic 2024-03-25
