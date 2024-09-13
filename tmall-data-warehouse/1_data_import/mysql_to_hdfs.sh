@@ -714,3 +714,7 @@ esac
 # sh mysql_to_hdfs.sh order_detail 2024-03-31
 #
 
+
+
+
+
