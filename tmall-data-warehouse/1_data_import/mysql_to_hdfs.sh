@@ -95,7 +95,7 @@ WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
            OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
 }
 
-************************************************************************************************
+
 
 
 # todo 每日同步表：sku_attr_value
@@ -159,7 +159,7 @@ import_sku_sale_attr_value(){
 }
 
 # todo spu
-----------------------------------------------------------------
+
 # todo 每日同步表：spu_image
 import_spu_image(){
   import_data spu_image "SELECT
@@ -228,7 +228,7 @@ import_spu_sale_attr_value(){
 }
 
 
-------------------------------------------------------------------
+
 # todo 增量
 # todo 每日同步表：订单明细表：payment_info
 import_payment_info(){
@@ -246,8 +246,7 @@ import_payment_info(){
                               callback_time,
                               callback_content
                         FROM payment_info
-WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
-           OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
+WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
 }
 
 
@@ -266,8 +265,7 @@ import_order_refund_info(){
                               refund_status,
                               create_time
                         FROM order_refund_info
-WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
-           OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
+WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
 }
 
 
@@ -288,11 +286,174 @@ import_refund_payment(){
                              callback_time,
                              callback_content
                         FROM refund_payment
+WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
+}
+
+
+# todo 每日同步表：order_detail_coupon
+import_order_detail_coupon(){
+  import_data order_detail_coupon_inc "SELECT
+    id,
+    order_id,
+    order_detail_id,
+    coupon_id,
+    coupon_use_id,
+    sku_id,
+    create_time
+FROM order_detail_coupon
+WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
+}
+
+# todo 每日同步表：order_status_log
+import_order_status_log(){
+  import_data order_status_log_inc "SELECT
+        id,
+        order_id,
+        order_status,
+        operate_time
+FROM order_status_log
+WHERE date_format(operate_time, '%Y-%m-%d') = '${do_date}'"
+}
+
+# todo 每日同步表：cart_info
+import_cart_info(){
+  import_data cart_info_inc "SELECT
+        id,
+            user_id,
+            sku_id,
+            cart_price,
+            sku_num,
+            img_url,
+            sku_name,
+            is_checked,
+            create_time,
+            operate_time,
+            is_ordered,
+            order_time,
+            source_type,
+            source_id
+FROM cart_info
 WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
            OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
 }
 
+# todo 每日同步表：coupon_info  优惠卷
+import_coupon_info(){
+  import_data coupon_info_full "SELECT
+        id,
+        coupon_name,
+        coupon_type,
+        condition_amount,
+        condition_num,
+        activity_id,
+        benefit_amount,
+        benefit_discount,
+        create_time,
+        range_type,
+        limit_num,
+        taken_count,
+        start_time,
+        end_time,
+        operate_time,
+        expire_time,
+        range_desc
+FROM coupon_info
+WHERE 1 = 1"
+}
 
+
+# todo 1.每日同步表：base_province
+import_base_province(){
+  import_data base_province_full "SELECT
+                           id,
+                              name,
+                              region_id,
+                              area_code,
+                              iso_code,
+                              iso_3166_2
+                          FROM base_province
+                          WHERE 1 = 1 "
+}
+
+
+# todo 2.每日同步表：base_region 地区表
+import_base_region(){
+  import_data base_region_full "SELECT
+                            id,
+                            region_name
+                        FROM base_region
+                        WHERE 1 = 1"
+}
+
+
+
+# todo 3.每日同步表 品牌表base_trademark
+import_base_trademark(){
+  import_data base_trademark_full "SELECT
+                             id,
+                             tm_name,
+                             logo_url
+                        FROM base_trademark
+                        WHERE 1 = 1"
+}
+
+ # todo：4.每日同步表 购物车表 cart_info
+ import_cart_info(){
+   import_data cart_info_full "SELECT
+                                id,
+                                user_id,
+                                sku_id,
+                                cart_price,
+                                sku_num,
+                                img_url,
+                                sku_name,
+                                is_checked,
+                                create_time,
+                                operate_time,
+                                is_ordered,
+                                order_time,
+                                source_type,
+                                source_id
+                         FROM cart_info
+                         WHERE 1 = 1"
+ }
+
+
+ # todo：5.每日同步表 favor_info 收藏表
+import_favor_info(){
+   import_data favor_info_inc "SELECT
+                                   id,
+                                   user_id,
+                                   sku_id,
+                                   spu_id,
+                                   is_cancel,
+                                   create_time,
+                                   cancel_time
+                         FROM favor_info
+                         WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
+                                          OR date_format(create_time, '%Y-%m-%d') = '${do_date}')"
+ }
+
+ # todo：6.每日同步表 用户表：user_info
+import_user_info(){
+  import_data user_info_inc "SELECT
+                                 id,
+                                 login_name,
+                                 nick_name,
+                                 passwd,
+                                 name,
+                                 phone_num,
+                                 email,
+                                 head_img,
+                                 user_level,
+                                 birthday,
+                                 gender,
+                                 create_time,
+                                 operate_time,
+                                 status
+                          FROM user_info
+                          WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
+}
 
 import_activity_info(){
   import_data activity_info "SELECT
@@ -351,7 +512,6 @@ import_base_category3(){
                                WHERE 1 = 1 AND \$CONDITIONS"
 
 }
-
 import_comment_info(){
   import_data comment_info "SELECT
                                id,
@@ -386,100 +546,17 @@ import_coupon_use(){
                          WHERE date_format(create_time, '%Y-%m-%d') = '$do_date' and \$CONDITIONS"
 }
 
-
-
-
-# todo 2.每日同步表：base_province
-import_base_province(){
-  import_data base_province_full "SELECT
-                           id,
-                              name,
-                              region_id,
-                              area_code,
-                              iso_code,
-                              iso_3166_2
-                          FROM base_province
-                          WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
-}
-
-
-# todo 3.每日同步表：base_region 地区表
-import_base_region(){
-  import_data base_region_full "SELECT
-     id,
-     region_name,
-    FROM base_region
-FROM base_region
-WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
-           OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
-}
-
-# todo 4.每日同步表 品牌表base_trademark
-import_base_trademark(){
-  import_data base_trademark_full "SELECT
+import_order_detail_activity(){
+  import_data order_detail_activity "SELECT
                              id,
-                             tm_name,
-                             logo_url
-                        FROM base_trademark
-                        WHERE 1 = 1"
-}
-
- # todo：5.每日同步表 购物车表 cart_info
- import_cart_info(){
-   import_data cart_info_full "SELECT
-                                id,
-                                user_id,
-                                sku_id,
-                                cart_price,
-                                sku_num,
-                                img_url,
-                                sku_name,
-                                is_checked,
-                                create_time,
-                                operate_time,
-                                is_ordered,
-                                order_time,
-                                source_type,
-                                source_id
-                         FROM cart_info
-                         WHERE 1 = 1"
- }
-
-
- # todo：5.每日同步表 favor_info 收藏表
-import_favor_info(){
-   import_data favor_info_init "SELECT
-                                   id,
-                                   user_id,
-                                   sku_id,
-                                   spu_id,
-                                   is_cancel,
-                                   create_time,
-                                   cancel_time
-                         FROM favor_info
-                         WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
-                                          OR date_format(operate_time, '%Y-%m-%d') = '${do_date}')"
- }
-
- # todo：7.每日同步表 用户表：user_info
-import_user_info(){
-  import_data user_info_inc "SELECT
-                                 id,
-                                 login_name,
-                                 nick_name,
-                                 passwd,
-                                 name,
-                                 phone_num,
-                                 email,
-                                 head_img,
-                                 user_level,
-                                 birthday,
-                                 gender,
-                                 create_time,
-                                 operate_time,
-                                 status
-                          FROM user_info
-                          WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
+                             order_id,
+                             order_detail_id,
+                             activity_id,
+                             activity_rule_id,
+                             sku_id,
+                             create_time
+                         FROM order_detail_activity
+                         WHERE date_format(create_time, '%Y-%m-%d') = '$do_date' and \$CONDITIONS"
 }
 
 
@@ -496,15 +573,6 @@ case $1 in
 ;;
   "order_info")
     import_order_info
-;;
-  "order_detail_coupon")
-    import_order_detail_coupon
-;;
-  "order_status_log")
-    import_order_status_log
-;;
-  "cart_info")
-    import_cart_info
 ;;
   "sku_attr_value")
     import_sku_attr_value
@@ -533,6 +601,46 @@ case $1 in
   "spu_sale_attr_value")
     import_spu_sale_attr_value
 ;;
+  "payment_info")
+    import_payment_info
+;;
+  "order_refund_info")
+    import_order_refund_info
+;;
+  "refund_payment")
+    import_refund_payment
+
+;;
+ "order_detail_coupon")
+    import_order_detail_coupon
+;;
+  "order_status_log")
+    import_order_status_log
+;;
+  "cart_info")
+    import_cart_info
+;;
+  "coupon_info")
+    import_coupon_info
+;;
+  "base_province")
+    import_base_province
+;;
+  "base_region")
+    import_base_region
+;;
+  "base_trademark")
+    import_base_trademark
+;;
+  "cart_info")
+    import_cart_info
+;;
+ "favor_info")
+    import_favor_info
+;;
+ "user_info")
+    import_user_info
+;;
   "activity_info")
     import_activity_info
 ;;
@@ -554,31 +662,13 @@ case $1 in
   "coupon_use")
     import_coupon_use
 ;;
-  "base_province")
-    import_base_province
-;;
-  "base_region")
-    import_base_region
-;;
-  "base_trademark")
-    import_base_trademark
-;;
-  "cart_info")
-    import_cart_info
-;;
- "favor_info")
-    import_favor_info
-;;
- "user_info")
-    import_user_info
+  "order_detail_activity")
+    import_order_detail_activity
 ;;
   "all")
     import_base_dic
     import_order_detail
     import_order_info
-    import_order_detail_coupon
-    import_order_status_log
-    import_cart_info
     import_sku_attr_value
     import_sku_image
     import_sku_info
@@ -588,6 +678,19 @@ case $1 in
     import_spu_poster
     import_spu_sale_attr
     import_spu_sale_attr_value
+    import_payment_info
+    import_order_refund_info
+    import_refund_payment
+    import_order_detail_coupon
+    import_order_status_log
+    import_cart_info
+    import_coupon_info
+    import_base_province
+    import_base_region
+    import_base_trademark
+    import_cart_info
+    import_favor_info
+    import_user_info
     import_activity_info
     import_activity_rule
     import_base_category1
@@ -595,12 +698,7 @@ case $1 in
     import_base_category3
     import_comment_info
     import_coupon_use
-    import_base_province
-    import_base_region
-    import_base_trademark
-    import_cart_info
-    import_favor_info
-    import_user_info
+    import_order_detail_activity
 ;;
 esac
 
