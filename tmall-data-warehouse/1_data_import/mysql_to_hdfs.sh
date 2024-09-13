@@ -100,7 +100,7 @@ WHERE (date_format(create_time, '%Y-%m-%d') = '${do_date}'
 
 # todo 每日同步表：sku_attr_value
 import_sku_attr_value(){
-  import_data sku_attr_value "SELECT
+  import_data sku_attr_value_full "SELECT
                          id,
                            attr_id,
                            value_id,
@@ -113,7 +113,7 @@ import_sku_attr_value(){
 
 # todo 每日同步表：sku_image
 import_sku_image(){
-  import_data sku_image "SELECT
+  import_data sku_image_full "SELECT
                           id,
                             sku_id,
                             img_name,
@@ -127,7 +127,7 @@ import_sku_image(){
 
 # todo 每日同步表：sku_info
 import_sku_info(){
-  import_data sku_info "SELECT
+  import_data sku_info_full "SELECT
                           id,
                             spu_id,
                             price,
@@ -146,7 +146,7 @@ import_sku_info(){
 
 # todo 每日同步表：sku_sale_attr_value
 import_sku_sale_attr_value(){
-  import_data sku_sale_attr_value "SELECT
+  import_data sku_sale_attr_value_full "SELECT
                           id,
                             sku_id,
                             spu_id,
@@ -162,7 +162,7 @@ import_sku_sale_attr_value(){
 
 # todo 每日同步表：spu_image
 import_spu_image(){
-  import_data spu_image "SELECT
+  import_data spu_image_full "SELECT
                           id,
                             spu_id,
                             img_name,
@@ -176,7 +176,7 @@ import_spu_image(){
 
 # todo 每日同步表：spu_info
 import_spu_info(){
-  import_data spu_info "SELECT
+  import_data spu_info_full "SELECT
                           id,
                             spu_name,
                             description,
@@ -191,7 +191,7 @@ import_spu_info(){
 
 # todo 每日同步表：spu_poster
 import_spu_poster(){
-  import_data spu_poster "SELECT
+  import_data spu_poster_full "SELECT
                           id,
                             spu_id,
                             img_name,
@@ -205,7 +205,7 @@ import_spu_poster(){
 
 # todo 每日同步表：spu_sale_attr
 import_spu_sale_attr(){
-  import_data spu_sale_attr "SELECT
+  import_data spu_sale_attr_full "SELECT
                           id,
                             spu_id,
                             base_sale_attr_id,
@@ -217,7 +217,7 @@ import_spu_sale_attr(){
 
 # todo 每日同步表：spu_sale_attr_value
 import_spu_sale_attr_value(){
-  import_data spu_sale_attr_value "SELECT
+  import_data spu_sale_attr_value_full "SELECT
                          id,
                            spu_id,
                            base_sale_attr_id,
@@ -232,7 +232,7 @@ import_spu_sale_attr_value(){
 # todo 增量
 # todo 每日同步表：订单明细表：payment_info
 import_payment_info(){
-  import_data payment_info "SELECT
+  import_data payment_info_inc "SELECT
                            id,
                               out_trade_no,
                               order_id,
@@ -252,7 +252,7 @@ WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
 
 # todo 每日同步表：order_refund_info
 import_order_refund_info(){
-  import_data order_refund_info "SELECT
+  import_data order_refund_info_inc "SELECT
                           id,
                               user_id,
                               order_id,
@@ -272,7 +272,7 @@ WHERE date_format(create_time, '%Y-%m-%d') = '${do_date}'"
 
 # todo 每日同步表：refund_payment
 import_refund_payment(){
-  import_data refund_payment "SELECT
+  import_data refund_payment_inc "SELECT
                          id,
                              out_trade_no,
                              order_id,
@@ -456,7 +456,7 @@ import_user_info(){
 }
 
 import_activity_info(){
-  import_data activity_info "SELECT
+  import_data activity_info_full "SELECT
                                id,
                                activity_name,
                                activity_type,
@@ -470,7 +470,7 @@ import_activity_info(){
 }
 
 import_activity_rule(){
-  import_data activity_rule "SELECT
+  import_data activity_rule_full "SELECT
                                 id,
                                 activity_id,
                                 activity_type,
@@ -485,7 +485,7 @@ import_activity_rule(){
 }
 
 import_base_category1(){
-  import_data base_category1 "SELECT
+  import_data base_category1_full "SELECT
                                  id,
                                  name
                                FROM base_category1
@@ -494,7 +494,7 @@ import_base_category1(){
 }
 
 import_base_category2(){
-  import_data base_category2 "SELECT
+  import_data base_category2_full "SELECT
                                  id,
                                  name,
                                  category1_id
@@ -504,7 +504,7 @@ import_base_category2(){
 }
 
 import_base_category3(){
-  import_data base_category3 "SELECT
+  import_data base_category3_full "SELECT
                                  id,
                                  name,
                                  category2_id
@@ -513,7 +513,7 @@ import_base_category3(){
 
 }
 import_comment_info(){
-  import_data comment_info "SELECT
+  import_data comment_info_inc "SELECT
                                id,
                                user_id,
                                nick_name,
@@ -531,7 +531,7 @@ import_comment_info(){
 }
 
 import_coupon_use(){
-  import_data coupon_use "SELECT
+  import_data coupon_use_inc "SELECT
                              id,
                              coupon_id,
                              user_id,
@@ -547,7 +547,7 @@ import_coupon_use(){
 }
 
 import_order_detail_activity(){
-  import_data order_detail_activity "SELECT
+  import_data order_detail_activity_inc "SELECT
                              id,
                              order_id,
                              order_detail_id,

@@ -89,7 +89,7 @@ import_order_info(){
 
 # todo 首日同步表：payment_info
 import_payment_info(){
-  import_data payment_info "SELECT
+  import_data payment_info_inc "SELECT
                               id,
                                   out_trade_no,
                                   order_id,
@@ -107,7 +107,7 @@ import_payment_info(){
 }
 # todo 首日同步表：order_refund_info
 import_order_refund_info(){
-  import_data order_refund_info "SELECT
+  import_data order_refund_info_inc "SELECT
                               id,
                                   user_id,
                                   order_id,
@@ -124,7 +124,7 @@ import_order_refund_info(){
 }
 # todo 首日同步表：refund_payment
 import_refund_payment(){
-  import_data refund_payment "SELECT
+  import_data refund_payment_inc "SELECT
                               id,
                                   out_trade_no,
                                   order_id,
@@ -225,7 +225,7 @@ import_user_info(){
 }
 
 import_comment_info(){
-  import_data comment_info "SELECT
+  import_data comment_info_inc "SELECT
                                id,
                                user_id,
                                nick_name,
@@ -242,7 +242,7 @@ import_comment_info(){
 }
 
 import_coupon_use(){
-  import_data coupon_use "SELECT
+  import_data coupon_use_inc "SELECT
                              id,
                              coupon_id,
                              user_id,
@@ -258,7 +258,7 @@ import_coupon_use(){
 }
 
 import_order_detail_activity(){
-  import_data order_detail_activity "SELECT
+  import_data order_detail_activity_inc "SELECT
                              id,
                              order_id,
                              order_detail_id,
