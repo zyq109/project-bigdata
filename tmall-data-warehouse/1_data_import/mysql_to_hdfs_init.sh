@@ -238,7 +238,7 @@ import_comment_info(){
                                create_time,
                                operate_time
                            FROM comment_info
-                           WHERE date_format(create_time, '%Y-%m-%d') <= '$do_date' and \$CONDITIONS"
+                           WHERE date_format(create_time, '%Y-%m-%d') <= '${do_date}'"
 }
 
 import_coupon_use(){
@@ -254,7 +254,7 @@ import_coupon_use(){
                              used_time,
                              expire_time
                          FROM coupon_use
-                         WHERE date_format(create_time, '%Y-%m-%d') <= '$do_date' and \$CONDITIONS"
+                         WHERE date_format(create_time, '%Y-%m-%d') <= '${do_date}'"
 }
 
 import_order_detail_activity(){
@@ -267,7 +267,7 @@ import_order_detail_activity(){
                              sku_id,
                              create_time
                          FROM order_detail_activity
-                         WHERE date_format(create_time, '%Y-%m-%d') <= '$do_date' and \$CONDITIONS"
+                         WHERE date_format(create_time, '%Y-%m-%d') <= '${do_date}'"
 }
 
 

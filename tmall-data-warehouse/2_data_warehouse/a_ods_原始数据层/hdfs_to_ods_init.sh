@@ -21,45 +21,85 @@ LOAD DATA INPATH '/origin_data/${APP}/order_info_inc/${do_date}'
 
 
 
-# 订单明细表
+ 订单明细表
 ods_order_detail_sql="
 LOAD DATA INPATH '/origin_data/${APP}/order_detail_inc/${do_date}'
   OVERWRITE INTO TABLE ${APP}.ods_order_detail_inc PARTITION(dt='${do_date}');"
 
 # 字典表
-ods_base_dic_sql="
-LOAD DATA INPATH '/origin_data/${APP}/base_dic_full/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_base_dic_full PARTITION(dt='${do_date}'); "
+#ods_base_dic_sql="
+#LOAD DATA INPATH '/origin_data/${APP}/base_dic_full/${do_date}'
+#  OVERWRITE INTO TABLE ${APP}.ods_base_dic_full PARTITION(dt='${do_date}'); "
 
 
-# activity_rule
-ods_activity_rule_sql="
-LOAD DATA INPATH '/origin_data/${APP}/activity_rule_inc/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_activity_rule_inc PARTITION(dt='${do_date}');"
-
-ods_base_province_sql="
-LOAD DATA INPATH '/origin_data/${APP}/base_province_inc/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_base_province_inc PARTITION(dt='${do_date}');"
-
-ods_base_region_sql="
-LOAD DATA INPATH '/origin_data/${APP}/base_region_inc/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_base_region_inc PARTITION(dt='${do_date}');"
 
 
-# order_refund_info  全量
+# order_refund_info
 ods_order_refund_info_sql="
-LOAD DATA INPATH '/origin_data/${APP}/order_refund_info_full/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_order_refund_info_full PARTITION(dt='${do_date}'); "
+LOAD DATA INPATH '/origin_data/${APP}/order_refund_info_inc/${do_date}'
+  OVERWRITE INTO TABLE ${APP}.ods_order_refund_info_inc PARTITION(dt='${do_date}'); "
 
-# refund_payment  全量
+# refund_payment
 ods_refund_payment_sql="
-LOAD DATA INPATH '/origin_data/${APP}/refund_payment_full/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_refund_payment_full PARTITION(dt='${do_date}'); "
+LOAD DATA INPATH '/origin_data/${APP}/refund_payment_inc/${do_date}'
+  OVERWRITE INTO TABLE ${APP}.ods_refund_payment_inc PARTITION(dt='${do_date}'); "
 
-# 字典表  全量
+# 字典表
 ods_cart_info_sql="
-LOAD DATA INPATH '/origin_data/${APP}/cart_info_full/${do_date}'
-  OVERWRITE INTO TABLE ${APP}.ods_cart_info_full PARTITION(dt='${do_date}'); "
+LOAD DATA INPATH '/origin_data/${APP}/cart_info_inc/${do_date}'
+  OVERWRITE INTO TABLE ${APP}.ods_cart_info_inc PARTITION(dt='${do_date}'); "
+
+
+ods_order_detail_coupon_sql="
+LOAD DATA INPATH '/origin_data/${APP}/order_detail_coupon_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_order_detail_coupon_inc PARTITION (dt = '${do_date}');
+"
+
+ods_comment_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/comment_info_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_comment_info_inc PARTITION (dt = '${do_date}');
+"
+
+ods_favor_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/favor_info_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_favor_info_inc PARTITION (dt = '${do_date}');
+"
+
+# 加购表：
+ods_cart_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/cart_info_inc/${do_date}'
+  OVERWRITE INTO TABLE ${APP}.ods_cart_info_inc PARTITION(dt='${do_date}');"
+
+
+#订单状态日志表
+ods_order_status_log_sql="
+LOAD DATA INPATH '/origin_data/${APP}/order_status_log_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_order_status_log_inc PARTITION (dt='${do_date}');"
+
+#订单明细获得关联表
+ods_order_detail_activity_sql="
+LOAD DATA INPATH '/origin_data/${APP}/order_detail_activity_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_order_detail_activity_inc PARTITION (dt='${do_date}');"
+
+# 订单信息表
+ods_order_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/order_info_inc/${do_date}'
+  OVERWRITE INTO TABLE ${APP}.ods_order_info_inc PARTITION(dt='${do_date}');"
+
+ods_coupon_use_sql="
+LOAD DATA INPATH '/origin_data/${APP}/coupon_use_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_coupon_use_inc PARTITION (dt = '${do_date}');
+"
+
+ods_user_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/user_info_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_user_info_inc PARTITION (dt = '${do_date}');
+"
+
+ods_payment_info_sql="
+LOAD DATA INPATH '/origin_data/${APP}/payment_info_inc/${do_date}'
+    OVERWRITE INTO TABLE ${APP}.ods_payment_info_inc PARTITION (dt = '${do_date}');
+"
 
 
 case $1 in
@@ -69,20 +109,12 @@ case $1 in
     "ods_order_detail"){
         hive -e "${ods_order_detail_sql}"
     };;
-    "ods_base_dic"){
-        hive -e "${ods_base_dic_sql}"
-    };;
 
-        "ods_activity_rule"){
-            hive -e "${ods_activity_rule_sql}"
-    };;
-        "ods_base_province"){
-            hive -e "${ods_base_province_sql}"
-    };;
-        "ods_base_region"){
-            hive -e "${ods_base_region_sql}"
+#    "ods_base_dic"){
+#        hive -e "${ods_base_dic_sql}"
+#    };;
 
-    };;
+
         "ods_order_refund_info"){
             hive -e "${ods_order_refund_info_sql}"
     };;
@@ -92,12 +124,40 @@ case $1 in
         "ods_cart_info"){
             hive -e "${ods_cart_info_sql}"
     };;
+        "ods_cart_info"){
+            hive -e "${ods_cart_info_sql}"
+        };;
+
+        "ods_order_status_log"){
+            hive -e "${ods_order_status_log_sql}"
+        };;
+        "ods_order_detail_activity"){
+            hive -e "${ods_order_detail_activity_sql}"
+        };;
+        "ods_order_info"){
+            hive -e "${ods_order_info_sql}"
+        };;
+
+       "ods_coupon_use"){
+              hive -e "${ods_coupon_use_sql}"
+          };;
+          "ods_user_info"){
+              hive -e "${ods_user_info_sql}"
+          };;
+          "ods_payment_info"){
+              hive -e "${ods_payment_info_sql}"
+          };;
     "all"){
-        hive -e "${ods_order_info_sql}${ods_order_detail_sql}${ods_base_dic_sql}"
-    };;
+                  hive -e "
+                  ${ods_order_info_sql}${ods_order_detail_sql}
+                  ${ods_order_refund_info_sql}${ods_refund_payment_sql}${ods_cart_info_sql}
+                  ${ods_order_detail_coupon_sql}${ods_comment_info_sql}${ods_favor_info_sql}
+                  ${ods_cart_info_sql}${ods_order_status_log_sql}${ods_order_detail_activity_sql}${ods_order_info_sql}
+                  ${ods_coupon_use_sql}${ods_user_info_sql}${ods_payment_info_sql}"
+              };;
 esac
 
-
+# ${ods_activity_rule_sql}${ods_base_province_sql}${ods_base_region_sql}
 #step1. 执行权限
 # chmod +x hdfs_to_ods_init.sh
 #step2. 前一天数据，加载到某张表
