@@ -6,28 +6,12 @@ APP=gmall
 if [ -n "$2" ] ;then
     do_date=$2
 else
-    do_date=`date -d "-1 day" +%F`
+    do_date=$(date -d "-1 day" +%F)
 fi
-
-
 
 # ===========================================================================================
 #                                 定义变量：各个表数据加载语句
 # ===========================================================================================
-
-# 订单信息表
-#ods_order_info_sql="
-#LOAD DATA INPATH '/origin_data/${APP}/order_info_inc/${do_date}'
-#  OVERWRITE INTO TABLE ${APP}.ods_order_info_inc PARTITION(dt='${do_date}');"
-
-
-
-# 订单明细表
-#ods_order_detail_sql="
-#LOAD DATA INPATH '/origin_data/${APP}/order_detail_inc/${do_date}'
-#  OVERWRITE INTO TABLE ${APP}.ods_order_detail_inc PARTITION(dt='${do_date}');"
-
-
 
 # 字典表  全量
 ods_base_dic_sql="
@@ -100,19 +84,10 @@ LOAD DATA INPATH '/origin_data/${APP}/activity_info_full/${do_date}'
     OVERWRITE INTO TABLE ${APP}.ods_activity_info_full PARTITION (dt = '${do_date}');
 "
 
-
-
 case $1 in
-#    "ods_order_info"){
-#        hive -e "${ods_order_info_sql}"
-#    };;
-#    "ods_order_detail"){
-#        hive -e "${ods_order_detail_sql}"
-#    };;
     "ods_base_dic"){
         hive -e "${ods_base_dic_sql}"
     };;
-
         "ods_activity_rule"){
             hive -e "${ods_activity_rule_sql}"
     };;
@@ -121,16 +96,6 @@ case $1 in
     };;
         "ods_base_region"){
             hive -e "${ods_base_region_sql}"
-
-    };;
-        "ods_order_refund_info"){
-            hive -e "${ods_order_refund_info_sql}"
-    };;
-        "ods_refund_payment"){
-            hive -e "${ods_refund_payment_sql}"
-    };;
-        "ods_cart_info"){
-            hive -e "${ods_cart_info_sql}"
     };;
         "ods_base_trademark"){
           hive -e "${ods_base_trademark_sql}"
@@ -143,13 +108,13 @@ case $1 in
     };;
         "ods_coupon_info"){
           hive -e "${ods_coupon_info_sql}"
-      };;
+    };;
         "ods_sku_attr_value"){
           hive -e "${ods_sku_attr_value_sql}"
-      };;
+    };;
        "ods_sku_sale_attr_value"){
-          hive -e "${ods_sku_sale_attr_value_sql}"
-      };;
+        hive -e "${ods_sku_sale_attr_value_sql}"
+    };;
         "ods_base_category1"){
         hive -e "${ods_base_category1_sql}"
     };;
@@ -162,12 +127,22 @@ case $1 in
         "ods_activity_info"){
           hive -e "${ods_activity_info_sql}"
       };;
-    "all"){
-        hive -e "${ods_base_dic_sql}
-        ${ods_activity_rule_sql}${ods_base_province_sql}${ods_base_region_sql}
-        ${ods_base_trademark_sql}${ods_base_category3_sql}${ods_base_category2_sql}
-        ${ods_coupon_info_sql}${ods_sku_attr_value_sql}${ods_sku_sale_attr_value_sql}
-        ${ods_base_category1_sql}${ods_sku_info_sql}${ods_spu_info_sql}${ods_activity_info_sql}"
+      "all"){
+        hive -e "
+        ${ods_base_dic_sql};
+        ${ods_activity_rule_sql};
+        ${ods_base_province_sql};
+        ${ods_base_region_sql};
+        ${ods_base_trademark_sql};
+        ${ods_base_category3_sql};
+        ${ods_base_category2_sql};
+        ${ods_coupon_info_sql};
+        ${ods_sku_attr_value_sql};
+        ${ods_sku_sale_attr_value_sql};
+        ${ods_base_category1_sql};
+        ${ods_sku_info_sql};
+        ${ods_spu_info_sql};
+        ${ods_activity_info_sql};"
     };;
 esac
 
@@ -180,5 +155,3 @@ esac
 #step4. 某天数据，加载所有表
 # hdfs_to_ods.sh all 2024-01-06
 #
-
-

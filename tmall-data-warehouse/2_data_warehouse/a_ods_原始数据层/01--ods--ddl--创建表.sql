@@ -582,7 +582,7 @@ CREATE EXTERNAL TABLE gmall.ods_payment_info_inc
     STORED AS TEXTFILE
     LOCATION '/warehouse/gmall/ods/ods_payment_info_inc/';
 
--
+
 
 -- ======================================================================
 --               todo： 12.退款信息表：refund_payment（每日，新增变化）
@@ -640,4 +640,25 @@ CREATE EXTERNAL TABLE gmall.ods_cart_info_inc
 
 
 
+-- ======================================================================
+--               todo： app日志表
+-- ======================================================================
+DROP TABLE IF EXISTS gmall.ods_log_inc;
+CREATE EXTERNAL TABLE gmall.ods_log_inc
+(
+    `common`   STRUCT<ar :STRING,ba :STRING,ch :STRING,is_new :STRING,md :STRING,mid :STRING,os :STRING,uid :STRING,vc
+                      :STRING> COMMENT '公共信息',
+    `page`     STRUCT<during_time :STRING,item :STRING,item_type :STRING,last_page_id :STRING,page_id
+                      :STRING,source_type :STRING> COMMENT '页面信息',
+    `actions`  ARRAY<STRUCT<action_id:STRING,item:STRING,item_type:STRING,ts:BIGINT>> COMMENT '动作信息',
+    `displays` ARRAY<STRUCT<display_type :STRING,item :STRING,item_type :STRING,`order` :STRING,pos_id
+                            :STRING>> COMMENT '曝光信息',
+    `start`    STRUCT<entry :STRING,loading_time :BIGINT,open_ad_id :BIGINT,open_ad_ms :BIGINT,open_ad_skip_ms
+                      :BIGINT> COMMENT '启动信息',
+    `err`      STRUCT<error_code:BIGINT,msg:STRING> COMMENT '错误信息',
+    `ts`       BIGINT COMMENT '时间戳'
+) COMMENT '活动信息表'
+    PARTITIONED BY (`dt` STRING)
+    ROW FORMAT SERDE 'org.apache.hadoop.hive.serde2.JsonSerDe'
+    LOCATION '/warehouse/gmall/ods/ods_log_inc/';
 

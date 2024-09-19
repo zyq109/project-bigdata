@@ -7,6 +7,10 @@ import pymysql
 import numpy as np
 
 
+def print(hive_ddl):
+    pass
+
+
 if __name__ == '__main__':
     """
         安装NumPy命令:

@@ -22,7 +22,7 @@ import_data(){
   --target-dir /origin_data/${APP}/$1/${do_date} \
   --delete-target-dir \
   --query "$2 AND \$CONDITIONS" \
-  --num-mappers 1 \
+  --num-mappers 1 \入
   --fields-terminated-by '\t' \
   --compress \
   --compression-codec gzip \
@@ -254,7 +254,7 @@ import_coupon_use(){
                              used_time,
                              expire_time
                          FROM coupon_use
-                         WHERE date_format(create_time, '%Y-%m-%d') <= '${do_date}'"
+                         WHERE date_format(get_time, '%Y-%m-%d') <= '${do_date}'"
 }
 
 import_order_detail_activity(){
@@ -280,7 +280,6 @@ case $1 in
   "order_info")
     import_order_info
 ;;
-
   "payment_info")
     import_payment_info
 ;;

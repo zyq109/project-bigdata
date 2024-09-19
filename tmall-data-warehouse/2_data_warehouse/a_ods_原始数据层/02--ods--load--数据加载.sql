@@ -55,7 +55,7 @@ SHOW PARTITIONS gmall.ods_order_detail_inc ;
 SELECT * FROM gmall.ods_order_detail_inc WHERE dt = '2024-06-18' LIMIT 10 ;
 
 -- todo 2.退单表：order_refund_info（每日，增量）
-
+order_refund_info
 -- todo 3.订单状态日志表：order_status_log（每日，增量）
 
 -- todo 4.订单明细活动关联表：order_detail_activity（每日，增量）
@@ -78,26 +78,4 @@ SELECT * FROM gmall.ods_order_detail_inc WHERE dt = '2024-06-18' LIMIT 10 ;
 
 -- todo 13. 购物车表：cart_info（每日，增量）
 
-
--- todo 1. app日志数据：
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-11'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-11');
-
-SHOW PARTITIONS gmall.ods_log_inc;
-SELECT * FROM gmall.ods_log_inc WHERE dt = '2024-06-11' LIMIT 10;
-
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-12'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-12');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-13'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-13');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-14'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-14');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-15'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-15');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-16'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-16');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-17'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-17');
-LOAD DATA INPATH '/origin_data/gmall/log/2024-06-18'
-    OVERWRITE INTO TABLE gmall.ods_log_inc partition(dt='2024-06-18');
 

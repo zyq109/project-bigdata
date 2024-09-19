@@ -5,13 +5,16 @@
 # ======================================================================
 # sku 平台属性表
 
-
+#sqoop 导入数据的参数
+# 1.连接数据库
 /opt/module/sqoop/bin/sqoop import \
 --connect jdbc:mysql://node101:3306/gmall \
 --username root \
 --password 123456 \
+# 2. 表信息
 --target-dir /origin_data/gmall/sku_attr_value/2024-06-18 \
 --delete-target-dir \
+#可以query 参数指定select 语句，但是必须添加
 --query "SELECT
   id,
   attr_id,
@@ -24,12 +27,14 @@ WHERE 1 = 1 AND \$CONDITIONS" \
 --num-mappers 1 \
 --split-by 'id' \
 --fields-terminated-by '\t' \
+# 4.压缩设置
 --compress \
 --compression-codec gzip \
+# 5.导入空值处理
 --null-string '\\N' \
 --null-non-string '\\N'
-
-
+# 6.map 任务数设置
+#--split-by id
 
 
 ===============================================================
