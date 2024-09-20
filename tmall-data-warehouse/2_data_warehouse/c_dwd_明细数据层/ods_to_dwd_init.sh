@@ -9,6 +9,12 @@ else
     do_date=$(date -d "-1 day" +%F)
 fi
 
+-- todo 首日数据加载，开启动态分区
+-- 开启动态分区
+SET hive.exec.dynamic.partition=true;
+-- 非严格模式：允许所有分区都是动态的
+SET hive.exec.dynamic.partition.mode=nonstrict;
+
 
 dwd_trade_cart_add_full="WITH cart_info AS
                          	     (

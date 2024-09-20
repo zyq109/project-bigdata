@@ -17,7 +17,9 @@ fi
 ods_base_dic_sql="
 LOAD DATA INPATH '/origin_data/${APP}/base_dic_full/${do_date}'
   OVERWRITE INTO TABLE ${APP}.ods_base_dic_full PARTITION(dt='${do_date}'); "
-
+# 在数据插入时：用   INSERT OVERWRITE 覆盖插入，
+#不是INSERT INTO，
+#目的是：为了避免重跑任务时，导致数据重复
 
 # activity_rule
 ods_activity_rule_sql="
@@ -145,6 +147,7 @@ case $1 in
         ${ods_activity_info_sql};"
     };;
 esac
+
 
 #step1. 执行权限
 # chmod +x hdfs_to_ods.sh

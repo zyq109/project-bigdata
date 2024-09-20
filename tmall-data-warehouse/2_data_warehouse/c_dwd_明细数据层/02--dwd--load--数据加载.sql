@@ -24,14 +24,13 @@ WITH cart
              FROM gmall.ods_base_dic_full
              WHERE dt = '2024-09-13'
                AND parent_code = '24')
-INSERT
-OVERWRITE
-TABLE
-gmall.dwd_trade_cart_add_inc
-PARTITION
-(
-dt
-)
+INSERT OVERWRITE TABLE gmall.dwd_trade_cart_add_inc PARTITION (dt)
+--  历史数据加载，动态分区
+-- 从ODS层获取历史数据，插入DWD层表，启动动态分区和非严格模式，自动将数据写入对应分区
+--     在数据插入时：用   INSERT OVERWRITE 覆盖插入，
+-- 不是INSERT INTO，
+-- 目的是：为了避免重跑任务时，导致数据重复
+
 SELECT id
      , user_id
      , sku_id
@@ -69,14 +68,7 @@ WITH cart AS (SELECT id,
              FROM gmall.ods_base_dic_full
              WHERE dt = '2024-09-14'
                AND parent_code = '24')
-INSERT
-OVERWRITE
-TABLE
-gmall.dwd_trade_cart_add_inc
-partition
-(
-dt = '2024-09-14'
-)
+INSERT OVERWRITE TABLE gmall.dwd_trade_cart_add_inc partition (dt = '2024-09-14')
 SELECT id,
        user_id,
        sku_id,
@@ -91,7 +83,7 @@ FROM cart
 
 
 
--- todo 2 交易域-下单-事务事实表
+-- todo 2 交易域-下单-事务事实表   订单明细
 /*
     主表：
         订单明细表 ods_order_detail_inc
@@ -366,6 +358,7 @@ FROM
 
 
 -- todo  4 交易域-购物车-周期快照事实表
+-- 加购表  和收藏表  只对当天数据有效
 /*
     直接从ODS层加购表（全量表）获取数据即可
 */
@@ -590,17 +583,10 @@ select
     model,
     operate_system,
     date_format(create_time,'yyyy-MM-dd')
-from
-    user_info AS ui
-        left join
-    log
-    on ui.user_id=log.user_id
-        left join
-    base_province AS bp
-    on log.area_code=bp.area_code;
+from user_info AS ui
+        left join log on ui.user_id=log.user_id
+        left join base_province AS bp on log.area_code=bp.area_code;
 
-
--- （2）每日装载
 
 
 
@@ -747,3 +733,10 @@ from
         left join
     base_province AS bp
     on log.area_code=bp.area_code;
+
+
+
+-- order_info  订单信息表 累积型快照事实表
+-- 表中有不同状态和对应时间，需要合并到一条数据中
+
+

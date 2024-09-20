@@ -6,6 +6,14 @@ USE hive_sql_zg5 ;
 
 -- todo: 4.1、表连接
 -- 1）、查询有两门以上的课程不及格的同学的学号及其平均成绩；
+SELECT
+    stu_id
+
+FROM hive_sql_zg5.score_info
+GROUP BY stu_id
+having count(score<60) >2
+
+
 
 
 -- todo 解法2：使用 left join关联，筛选数据

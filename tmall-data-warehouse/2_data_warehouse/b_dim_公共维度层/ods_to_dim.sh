@@ -8,6 +8,11 @@ else
     do_date=$(date -d "-1 day" +%F)
 fi
 
+SET hive.exec.dynamic.partition = true; -- 启用动态分区
+SET hive.exec.dynamic.partition.mode = nonstrict; -- 允许动态分区模式为非严格
+SET hive.stats.autogather = false; -- 禁用统计信息自动收集
+
+
 #3 活动维度表
 #    数据来源于：
 #        ods_activity_rule_full（全量） 和

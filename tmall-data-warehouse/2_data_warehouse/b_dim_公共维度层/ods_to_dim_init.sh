@@ -7,6 +7,11 @@ else
   exit
 fi
 
+SET hive.exec.dynamic.partition = true; -- 启用动态分区
+SET hive.exec.dynamic.partition.mode = nonstrict; -- 允许动态分区模式为非严格
+SET hive.stats.autogather = false; -- 禁用统计信息自动收集
+
+
 #6 用户维度表
 dim_user_sql="
 WITH
