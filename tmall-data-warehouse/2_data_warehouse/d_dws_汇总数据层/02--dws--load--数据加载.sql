@@ -313,10 +313,22 @@ where dt='2024-09-14'
 group by session_id,mid_id,brand,model,operate_system,version_code,channel;
 
 
+
 -- =========================================================================
 -- todo 1.9 流量域-访客页面粒度-页面浏览-最近1日-汇总表
 -- =========================================================================
-
+-- 每日数据加载
+INSERT OVERWRITE TABLE gmall.dws_traffic_page_visitor_page_view_1d PARTITION (dt = '2024-09-14')
+SELECT mid_id
+     , brand
+     , model
+     , operate_system
+     , page_id
+     , sum(during_time)
+     , count(page_id)
+FROM gmall.dwd_traffic_page_view_inc
+WHERE dt = '2024-09-14'
+GROUP BY mid_id, brand, model, operate_system, page_id;
 
 
 -- =========================================================================
@@ -326,7 +338,7 @@ group by session_id,mid_id,brand,model,operate_system,version_code,channel;
     汇总表：
         dws_trade_user_sku_order_1d
 */
-INSERT OVERWRITE TABLE gmall.dws_trade_user_sku_order_nd PARTITION(dt = '2024-04-18')
+INSERT OVERWRITE TABLE gmall.dws_trade_user_sku_order_nd PARTITION(dt = '2024-09-13')
 SELECT
     user_id,
     sku_id,
@@ -449,10 +461,46 @@ SELECT * FROM gmall.dws_trade_user_order_td WHERE dt = '2024-09-14' ;
 -- todo 3.3 用户域-用户粒度-登录-历史至今-汇总表
 -- =========================================================================
 
+
 --（1）首日装载
+INSERT OVERWRITE TABLE dws_user_user_login_td PARTITION (dt = '2024-09-13')
+SELECT u.id,
+       nvl(login_date_last, date_format(create_time, 'yyyy-MM-dd')),
+       nvl(login_count_td, 1)
+FROM (SELECT id,
+             create_time
+      FROM dim_user_zip
+      WHERE dt = '2024-09-13') u
+         LEFT JOIN
+     (SELECT user_id,
+             max(dt)  login_date_last,
+             count(*) login_count_td
+      FROM dwd_user_login_inc
+      GROUP BY user_id) l
+     ON u.id = l.user_id;
 
-
+SHOW PARTITIONS gmall.dws_user_user_login_td;
+SELECT *
+FROM gmall.dws_user_user_login_td
+;
 -- （2）每日装载
+
+insert overwrite table dws_user_user_login_td partition (dt = '2020-09-14')
+select nvl(old.user_id, new.user_id),
+       if(new.user_id is null, old.login_date_last, '2024-09-14'),
+       nvl(old.login_count_td, 0) + nvl(new.login_count_1d, 0)
+from (select user_id,
+             login_date_last,
+             login_count_td
+      from dws_user_user_login_td
+      where dt = date_add('2020-09-14', -1)) old
+         full outer join
+     (select user_id,
+             count(*) login_count_1d
+      from dwd_user_login_inc
+      where dt = '2020-09-14'
+      group by user_id) new
+     on old.user_id = new.user_id;
 
 
 

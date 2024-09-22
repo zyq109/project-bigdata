@@ -101,8 +101,10 @@ WHERE (date_format(create_time, '%Y-%m-%d') = '2024-06-19'
  */
 
 
+
+
 -- todo 10.用户表：user_info（每日，新增变化）
-LOAD DATA INPATH '/origin_data/gmall/tmp_user_info_inc/2024-06-18'
+LOAD DATA INPATH '/origin_data/gmall/tmp_user_info_inc/2024-09-13'
     OVERWRITE INTO TABLE gmall.tmp_ods_user_info_inc PARTITION (dt = '2024-06-18');
 
 

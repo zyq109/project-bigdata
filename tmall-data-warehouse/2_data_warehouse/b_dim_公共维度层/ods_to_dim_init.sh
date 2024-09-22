@@ -1,5 +1,7 @@
 #!/bin/bash
 
+APP=gmall
+
 if [ -n "$2" ] ;then
     do_date=$2
 else
@@ -7,61 +9,29 @@ else
   exit
 fi
 
-SET hive.exec.dynamic.partition = true; -- 启用动态分区
-SET hive.exec.dynamic.partition.mode = nonstrict; -- 允许动态分区模式为非严格
-SET hive.stats.autogather = false; -- 禁用统计信息自动收集
-
-
-#6 用户维度表
+# todo 用户维度表 (首日)
 dim_user_sql="
-WITH
---     用户信息表
-user_info AS (
+    SET hive.exec.dynamic.partition = true;
+    SET hive.exec.dynamic.partition.mode = nonstrict;
+    SET hive.stats.autogather = false;
+    INSERT OVERWRITE TABLE ${APP}.dim_user_zip PARTITION (dt)
     SELECT
-        id,
-        login_name,
-        nick_name,
-        passwd,
-        name,
-        phone_num,
-        email,
-        head_img,
-        user_level,
-        birthday,
-        gender,
-        create_time,
-        operate_time,
-        status,
-        '${do_date}' AS start_date,
-        '9999-12-31' AS end_date
-    FROM gmall.ods_user_info_inc
-    WHERE dt='${do_date}'
-)
-INSERT INTO TABLE gmall.dim_user_zip PARTITION (dt='${do_date}')
-SELECT
-    id,
-    login_name,
-    nick_name,
-    name,
-    phone_num,
-    email,
-    user_level,
-    birthday,
-    gender,
-    create_time,
-    operate_time,
-    start_date,
-    end_date
-FROM user_info;
+        id, login_name, nick_name
+         , md5(name) AS name, md5(phone_num) AS phone_num, md5(email) AS email
+         , user_level, birthday, gender, create_time, operate_time
+         , '${do_date}' AS start_date
+         , '9999-12-31' AS end_date
+         , '9999-12-31' AS dt
+    FROM ${APP}.ods_user_info_inc
+    WHERE dt = '${do_date}'
+    ;
 "
 
 case $1 in
-  "dim_user"){
+  "dim_activity"){
     hive -e "${dim_user_sql}"
   };;
   "all"){
-    hive -e "
-    ${dim_user_sql};
-    "
+    hive -e "${dim_user_sql}"
   };;
 esac

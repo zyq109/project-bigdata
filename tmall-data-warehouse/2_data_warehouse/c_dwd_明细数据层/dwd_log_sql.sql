@@ -21,8 +21,6 @@
 */
 
 
-LOAD DATA INPATH '/origin_data/gmall/log/2024-09-13'
-    OVERWRITE INTO TABLE gmall.ods_log_inc PARTITION(dt='2024-09-13');
 
 
 WITH
@@ -47,7 +45,7 @@ WITH
              , date_format(from_utc_timestamp(ts,'GMT+8'),' yyyy-MM-dd HH:mm:ss') AS `view_time`
              , page.during_time AS `during_time`
         FROM gmall.ods_log_inc
-        WHERE dt = '2024-09-13'
+        WHERE dt = '2024-09-11'
     )
    -- b. 获取每个会话起始点：last_page_id IS NULL
    , session AS (
@@ -74,7 +72,7 @@ WITH
         WHERE dt = '2024-09-11'
     )
 -- todo 插入表
-INSERT OVERWRITE TABLE gmall.dwd_traffic_page_view_inc PARTITION (dt = '2024-09-13')
+INSERT OVERWRITE TABLE gmall.dwd_traffic_page_view_inc PARTITION (dt = '2024-09-11')
 SELECT
      province.`province_id`
     , `brand`
@@ -123,7 +121,7 @@ WITH
              , date_format(from_utc_timestamp(ts,'GMT+8'),' yyyy-MM-dd HH:mm:ss') AS `view_time`
              , page.during_time AS `during_time`
         FROM gmall.ods_log_inc log
-        WHERE dt = '2024-09-13'
+        WHERE dt = '2024-09-11'
     )
     -- b. 获取每个会话起始点：last_page_id IS NULL
     , session AS (
@@ -146,5 +144,6 @@ FROM session
 DESC FUNCTION last_value;
 
 
+SHOW PARTITIONS gmall.dwd_traffic_page_view_inc;
 
 

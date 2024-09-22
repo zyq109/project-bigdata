@@ -187,28 +187,28 @@ CREATE EXTERNAL TABLE gmall.ods_activity_rule_full
 -- ======================================================================
 --                 todo：10. 购物车表：cart_info（每日，全量）
 -- ======================================================================
--- DROP TABLE IF EXISTS gmall.ods_cart_info_full;
--- CREATE EXTERNAL TABLE gmall.ods_cart_info_full
--- (
---     `id`           STRING COMMENT '编号',
---     `user_id`      STRING COMMENT '用户id',
---     `sku_id`       STRING COMMENT 'skuid',
---     `cart_price`   DECIMAL(16, 2) COMMENT '放入购物车时价格',
---     `sku_num`      BIGINT COMMENT '数量',
---     `img_url`      STRING COMMENT '托文件',
---     `sku_name`     STRING COMMENT 'sku名称 (冗余)',
---     `is_checked`   STRING COMMENT '是否检查',
---     `create_time`  STRING COMMENT '创建时间',
---     `operate_time` STRING COMMENT '修改时间',
---     `is_ordered`   STRING COMMENT '是否已经下单',
---     `order_time`   STRING COMMENT '下单时间',
---     `source_type`  STRING COMMENT '来源类型',
---     `source_id`    STRING COMMENT '来源编号'
--- ) COMMENT '加购表'
---     PARTITIONED BY (`dt` STRING)
---     ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
---     STORED AS TEXTFILE
---     LOCATION '/warehouse/gmall/ods/ods_cart_info_full/';
+DROP TABLE IF EXISTS gmall.ods_cart_info_full;
+CREATE EXTERNAL TABLE gmall.ods_cart_info_full
+(
+    `id`           STRING COMMENT '编号',
+    `user_id`      STRING COMMENT '用户id',
+    `sku_id`       STRING COMMENT 'skuid',
+    `cart_price`   DECIMAL(16, 2) COMMENT '放入购物车时价格',
+    `sku_num`      BIGINT COMMENT '数量',
+    `img_url`      STRING COMMENT '托文件',
+    `sku_name`     STRING COMMENT 'sku名称 (冗余)',
+    `is_checked`   STRING COMMENT '是否检查',
+    `create_time`  STRING COMMENT '创建时间',
+    `operate_time` STRING COMMENT '修改时间',
+    `is_ordered`   STRING COMMENT '是否已经下单',
+    `order_time`   STRING COMMENT '下单时间',
+    `source_type`  STRING COMMENT '来源类型',
+    `source_id`    STRING COMMENT '来源编号'
+) COMMENT '加购表'
+    PARTITIONED BY (`dt` STRING)
+    ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t'
+    STORED AS TEXTFILE
+    LOCATION '/warehouse/gmall/ods/ods_cart_info_full/';
 
 
 -- ======================================================================

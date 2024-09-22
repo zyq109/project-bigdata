@@ -55,7 +55,7 @@ SHOW PARTITIONS gmall.ods_order_detail_inc ;
 SELECT * FROM gmall.ods_order_detail_inc WHERE dt = '2024-06-18' LIMIT 10 ;
 
 -- todo 2.退单表：order_refund_info（每日，增量）
-order_refund_info
+-- order_refund_info
 -- todo 3.订单状态日志表：order_status_log（每日，增量）
 
 -- todo 4.订单明细活动关联表：order_detail_activity（每日，增量）

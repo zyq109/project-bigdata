@@ -34,11 +34,11 @@ SELECT
      -- 数据脱敏，直接使用md5完成
      , md5(name) AS name, md5(phone_num) AS phone_num, md5(email) AS email
      , user_level, birthday, gender, create_time, operate_time
-     , '2024-06-18' AS start_date
+     , '2024-09-13' AS start_date
      , '9999-12-31' AS end_date
      , '9999-12-31' AS dt
 FROM gmall.tmp_ods_user_info_inc
-WHERE dt = '2024-06-18'
+WHERE dt = '2024-09-13'
 ;
 
 -- 我们把数据量大、缓慢变化的数据做成拉链表，考虑到数据量大，不适合采用全量采集，所以选择新增及变化采集，首先我们初始化拉链表，新增两个字段，开始时间和结束时间，
