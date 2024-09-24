@@ -185,4 +185,3 @@ WHERE date_format(create_time, '%Y-%m-%d') = '2024-06-19' and \$CONDITIONS" \
 
 
 
-

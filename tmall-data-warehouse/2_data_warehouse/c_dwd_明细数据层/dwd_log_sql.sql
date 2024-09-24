@@ -19,10 +19,6 @@
     `session_id`     STRING COMMENT '所属会话id',
     `during_time`    BIGINT COMMENT '持续时间毫秒'
 */
-
-
-
-
 WITH
     -- a. 日志表数据
     log AS (
@@ -41,8 +37,8 @@ WITH
              , page.last_page_id AS `last_page_id`
              , page.page_id AS `page_id`
              , page.source_type AS `source_type`
-             , date_format(from_utc_timestamp(ts,'GMT+8'), 'yyyy-MM-dd') AS `date_id`
-             , date_format(from_utc_timestamp(ts,'GMT+8'),' yyyy-MM-dd HH:mm:ss') AS `view_time`
+             , date_format(from_utc_timestamp(ts, 'GMT+8'), 'yyyy-MM-dd') AS `date_id`
+             , date_format(from_utc_timestamp(ts, 'GMT+8'),' yyyy-MM-dd HH:mm:ss') AS `view_time`
              , page.during_time AS `during_time`
         FROM gmall.ods_log_inc
         WHERE dt = '2024-09-11'
@@ -72,7 +68,7 @@ WITH
         WHERE dt = '2024-09-11'
     )
 -- todo 插入表
-INSERT OVERWRITE TABLE gmall.dwd_traffic_page_view_inc PARTITION (dt = '2024-09-11')
+INSERT OVERWRITE TABLE gmall.dwd_traffic_page_view_inc PARTITION (dt = '2024-09-13')
 SELECT
      province.`province_id`
     , `brand`
@@ -121,7 +117,7 @@ WITH
              , date_format(from_utc_timestamp(ts,'GMT+8'),' yyyy-MM-dd HH:mm:ss') AS `view_time`
              , page.during_time AS `during_time`
         FROM gmall.ods_log_inc log
-        WHERE dt = '2024-09-11'
+        WHERE dt = '2024-09-12'
     )
     -- b. 获取每个会话起始点：last_page_id IS NULL
     , session AS (
@@ -134,8 +130,7 @@ WITH
     )
 -- c. 使用last_value开窗函数，给每个会话加上id
 SELECT
-    mid_id, view_time, page_id, last_page_id
-    -- , session_start_point
+    mid_id, view_time, page_id, last_page_id, session_start_point
     , last_value(session_start_point, true) over(PARTITION BY mid_id ORDER BY view_time) AS session_id
 FROM session
 ;
@@ -144,6 +139,5 @@ FROM session
 DESC FUNCTION last_value;
 
 
-SHOW PARTITIONS gmall.dwd_traffic_page_view_inc;
 
 
