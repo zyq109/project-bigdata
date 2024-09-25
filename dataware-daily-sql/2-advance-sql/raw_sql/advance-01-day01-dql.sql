@@ -15,6 +15,29 @@ todo: 排序开窗函数
     dense_rank：重复，连续，，1、1、2、3、4、...
 */
 
+WITH
+
+    -- 各个商品的销量
+    tmp1 AS(
+    SELECT
+        sku_id
+        ,count(distinct order_id) as sku_num_sum
+    FROM hive_sql_zg6.order_detail
+    GROUP BY sku_id
+    )
+    ,tmp2 AS (
+    SELECT
+        sku_id,sku_num_sum
+        ,dense_rank() over ())
+    FROM tmp1
+)
+
+;
+
+-- 添加序号
+
+
+
 
 -- todo：2）、查询至少连续三天下单的用户
 /*

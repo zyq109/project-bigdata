@@ -1,118 +1,284 @@
 
--- 创建表，采用CTAS方式创建表
-CREATE TABLE IF NOT EXISTS gmall.tmp_dws_pageview_1d
-AS
-SELECT '2024-06-01' AS dt, 1000 AS pv, 234 AS uv
-UNION
-SELECT '2024-06-02' AS dt, 1200 AS pv, 456 AS uv
-UNION
-SELECT '2024-06-03' AS dt, 900 AS pv, 432 AS uv
-UNION
-SELECT '2024-06-04' AS dt, 880 AS pv, 245 AS uv
-UNION
-SELECT '2024-06-05' AS dt, 1300 AS pv, 564 AS uv
-UNION
-SELECT '2024-06-06' AS dt, 2400 AS pv, 678 AS uv
-UNION
-SELECT '2024-06-07' AS dt, 8000 AS pv, 345 AS uv
-UNION
-SELECT '2024-06-08' AS dt, 9000 AS pv, 432 AS uv
-UNION
-SELECT '2024-06-09' AS dt, 12000 AS pv, 1245 AS uv
-UNION
-SELECT '2024-06-10' AS dt, 890 AS pv, 564 AS uv
-;
 
--- 查询表数据
-SELECT * FROM gmall.tmp_dws_pageview_1d ;
-
--- 最近1日统计：2024-06-10,1,890,564
+-- a. 浏览首页和商品详情页人数
 SELECT
-    '2024-06-10' AS dt
-    , 1 AS recent_days
-    , sum(pv) AS pv
-    , sum(uv) AS uv
-FROM gmall.tmp_dws_pageview_1d
-WHERE dt >= date_sub('2024-06-10', 1 - 1) AND dt <= '2024-06-10'
-;
-
--- 最近7日统计：2024-06-10,7,34470,4073
-SELECT
-    '2024-06-10' AS dt
-     , 7 AS recent_days
-     , sum(pv) AS pv
-     , sum(uv) AS uv
-FROM gmall.tmp_dws_pageview_1d
-WHERE dt >= date_sub('2024-06-10', 7 - 1) AND dt <= '2024-06-10'
-;
-
--- 最近30日统计：2024-06-10,30,37570,5195
-SELECT
-    '2024-06-10' AS dt
-     , 30 AS recent_days
-     , sum(pv) AS pv
-     , sum(uv) AS uv
-FROM gmall.tmp_dws_pageview_1d
-WHERE dt >= date_sub('2024-06-10', 30 - 1) AND dt <= '2024-06-10'
-;
-
--- 使用exploded炸裂函数
-WITH
-    -- 1. 数据扩容
-    tmp_data AS (
-        SELECT
-            dt, pv, uv, recent_days
-        FROM gmall.tmp_dws_pageview_1d
-                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
-        WHERE dt >= date_sub('2024-06-10', 30 - 1) AND dt <= '2024-06-10'
-    )
-SELECT
-    -- 2. 分组统计，使用sum-if
-    '2024-06-10' AS dt
+    '2024-09-13' AS dt
      , recent_days
-     , sum(if(dt >= date_sub('2024-06-10', recent_days - 1) ,pv, 0)) AS pv
-     , sum(if(dt >= date_sub('2024-06-10', recent_days - 1) ,uv, 0)) AS uv
-FROM tmp_data
+     -- 浏览首页人数
+     , SUM(IF(dt >= date_sub('2024-09-13', recent_days - 1) AND page_id = 'home', 1, 0)) AS home_count
+     -- 浏览商品详情页人数
+     , SUM(IF(dt >= date_sub('2024-09-13', recent_days - 1) AND page_id = 'good_detail', 1, 0)) AS good_detail_count
+FROM gmall.dws_traffic_page_visitor_page_view_1d
+         LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+  AND page_id IS NOT NULL
+  AND page_id IN ('home', 'good_detail')
 GROUP BY recent_days
 ;
 
 
-
--- 函数：explode  -- 列转行
-DESC FUNCTION explode ;
+SELECT split('1,7,30', ',') AS sn;
 /*
-explode(a)
-    - separates the elements of array a into multiple rows,
-    or the elements of a map into multiple rows and columns
+ ["1","7","30"]
 */
--- 数组
-SELECT explode(`array`(1, 7, 30)) AS recent_day ;
 
--- map集合
-SELECT explode(str_to_map('id=1001,name=zhangsan,gender=male,age=24', ',', '=')) AS (name, value) ;
+SELECT explode(split('1,7,30', ',')) AS sn;
+/*
+1
+7
+30
+*/
 
--- todo 爆炸函数，与偏视图整合使用
-WITH
-    tmp1 AS (
-        SELECT 'hello' AS x1
-    )
 SELECT
-    x1, recent_days
-FROM tmp1
-    LATERAL VIEW explode(array(1, 7, 30, 90, 180, 360)) tmp AS recent_days
+    id, region_name, dt
+     , recent_days
+FROM gmall.ods_base_region_full
+         LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+WHERE dt = '2024-09-11'
 ;
 
--- 函数：array
-DESC FUNCTION array ;
-/*
-array(n0, n1...) - Creates an array with the given elements
-*/
-SELECT `array`(1, 7, 30) AS recent_days ;
+-- ==================================== 常规写法 ===================================
+
+WITH
+   -- todo 第1、最近1日统计
+    page_stats_1d AS (
+        -- a. 浏览首页和商品详情页人数
+        SELECT
+            '2024-09-11' AS dt
+             , 1 AS recent_days
+             -- 浏览首页人数
+             , SUM(IF(page_id = 'home', 1, 0)) AS home_count
+             -- 浏览商品详情页人数
+             , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
+        FROM gmall.dws_traffic_page_visitor_page_view_1d
+        WHERE dt = '2024-09-11'
+          AND page_id IS NOT NULL
+          AND page_id IN ('home', 'good_detail')
+    )
+   , cart_stats_1d AS (
+    -- b. 加入购物车人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS cart_count
+    FROM gmall.dws_trade_user_order_1d
+    WHERE dt = '2024-09-11'
+)
+   , order_stats_1d AS (
+    -- c. 下单人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS order_count
+    FROM gmall.dws_trade_user_cart_add_1d
+    WHERE dt = '2024-09-11'
+)
+   , payment_stats_1d AS (
+    -- d. 支付人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS payment_count
+    FROM gmall.dws_trade_user_payment_1d
+    WHERE dt = '2024-09-11'
+)
+   , stats_1d AS (
+    -- e. 合并人数统计
+    SELECT
+        ps.dt
+         , ps.recent_days
+         , ps.home_count
+         , ps.good_detail_count
+         , cs.cart_count
+         , os.order_count
+         , pms.payment_count
+    FROM page_stats_1d ps
+             LEFT JOIN cart_stats_1d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
+             LEFT JOIN order_stats_1d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
+             LEFT JOIN payment_stats_1d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+)
+   -- todo 第2、最近7日统计
+   , page_stats_7d AS (
+    -- a. 浏览首页和商品详情页人数
+    SELECT
+        '2024-09-11' AS dt
+         , 7 AS recent_days
+         -- 浏览首页人数
+         , SUM(IF(page_id = 'home', 1, 0)) AS home_count
+         -- 浏览商品详情页人数
+         , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
+    FROM gmall.dws_traffic_page_visitor_page_view_1d
+    WHERE dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+      AND page_id IS NOT NULL
+      AND page_id IN ('home', 'good_detail')
+)
+   , cart_stats_7d AS (
+    -- b. 加入购物车人数
+    SELECT
+        '2024-09-11' AS dt
+         , 7 AS recent_days
+         , count(user_id) AS cart_count
+    FROM gmall.dws_trade_user_order_1d
+    WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+)
+   , order_stats_7d AS (
+    -- c. 下单人数
+    SELECT
+        '2024-09-11' AS dt
+         , 7 AS recent_days
+         , count(user_id) AS order_count
+    FROM gmall.dws_trade_user_cart_add_1d
+    WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+)
+   , payment_stats_7d AS (
+    -- d. 支付人数
+    SELECT
+        '2024-09-11' AS dt
+         , 7 AS recent_days
+         , count(user_id) AS payment_count
+    FROM gmall.dws_trade_user_payment_1d
+    WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+)
+   , stats_7d AS (
+    -- e. 合并人数统计
+    SELECT
+        ps.dt
+         , ps.recent_days
+         , ps.home_count
+         , ps.good_detail_count
+         , cs.cart_count
+         , os.order_count
+         , pms.payment_count
+    FROM page_stats_7d ps
+             LEFT JOIN cart_stats_7d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
+             LEFT JOIN order_stats_7d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
+             LEFT JOIN payment_stats_7d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+)
+   -- todo 第3、最近30日统计
+   , page_stats_30d AS (
+    -- a. 浏览首页和商品详情页人数
+    SELECT
+        '2024-09-11' AS dt
+         , 30 AS recent_days
+         -- 浏览首页人数
+         , SUM(IF(page_id = 'home', 1, 0)) AS home_count
+         -- 浏览商品详情页人数
+         , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
+    FROM gmall.dws_traffic_page_visitor_page_view_1d
+    WHERE dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
+      AND page_id IS NOT NULL
+      AND page_id IN ('home', 'good_detail')
+)
+   , cart_stats_30d AS (
+    -- b. 加入购物车人数
+    SELECT
+        '2024-09-11' AS dt
+         , 30 AS recent_days
+         , count(user_id) AS cart_count
+    FROM gmall.dws_trade_user_order_1d
+    WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
+)
+   , order_stats_30d AS (
+    -- c. 下单人数
+    SELECT
+        '2024-09-11' AS dt
+         , 30 AS recent_days
+         , count(user_id) AS order_count
+    FROM gmall.dws_trade_user_cart_add_1d
+    WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
+)
+   , payment_stats_30d AS (
+    -- d. 支付人数
+    SELECT
+        '2024-09-11' AS dt
+         , 30 AS recent_days
+         , count(user_id) AS payment_count
+    FROM gmall.dws_trade_user_payment_1d
+    WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
+)
+   , stats_30d AS (
+    -- e. 合并人数统计
+    SELECT
+        ps.dt
+         , ps.recent_days
+         , ps.home_count
+         , ps.good_detail_count
+         , cs.cart_count
+         , os.order_count
+         , pms.payment_count
+    FROM page_stats_30d ps
+             LEFT JOIN cart_stats_30d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
+             LEFT JOIN order_stats_30d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
+             LEFT JOIN payment_stats_30d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+)
+-- todo 第5、插入保存
+INSERT OVERWRITE TABLE gmall.ads_user_action
+-- todo 第4、历史统计
+SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count
+FROM gmall.ads_user_action
+UNION
+SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_1d
+UNION ALL
+SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_7d
+UNION ALL
+SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_30d
+;
 
 
--- 函数：str_to_map
-DESC FUNCTION str_to_map ;
-/*
- str_to_map(text, delimiter1, delimiter2) - Creates a map by parsing text
-*/
-SELECT str_to_map('id=1001,name=zhangsan,gender=male,age=24', ',', '=') AS infos ;
+-- ==================================== 最近1日统计 ====================================
+WITH
+    page_stats_1d AS (
+        -- a. 浏览首页和商品详情页人数
+        SELECT
+            '2024-09-11' AS dt
+             , 1 AS recent_days
+             -- 浏览首页人数
+             , SUM(IF(page_id = 'home', 1, 0)) AS home_count
+             -- 浏览商品详情页人数
+             , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
+        FROM gmall.dws_traffic_page_visitor_page_view_1d
+        WHERE dt = '2024-09-11'
+          AND page_id IS NOT NULL
+          AND page_id IN ('home', 'good_detail')
+    )
+   , cart_stats_1d AS (
+    -- b. 加入购物车人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS cart_count
+    FROM gmall.dws_trade_user_order_1d
+    WHERE dt = '2024-09-11'
+)
+   , order_stats_1d AS (
+    -- c. 下单人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS order_count
+    FROM gmall.dws_trade_user_cart_add_1d
+    WHERE dt = '2024-09-11'
+)
+   , payment_stats_1d AS (
+    -- d. 支付人数
+    SELECT
+        '2024-09-11' AS dt
+         , 1 AS recent_days
+         , count(user_id) AS payment_count
+    FROM gmall.dws_trade_user_payment_1d
+    WHERE dt = '2024-09-11'
+)
+-- e. 合并人数统计
+SELECT
+    ps.dt
+     , ps.recent_days
+     , ps.home_count
+     , ps.good_detail_count
+     , cs.cart_count
+     , os.order_count
+     , pms.payment_count
+FROM page_stats_1d ps
+         LEFT JOIN cart_stats_1d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
+         LEFT JOIN order_stats_1d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
+         LEFT JOIN payment_stats_1d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+;

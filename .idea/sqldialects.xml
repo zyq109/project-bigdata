@@ -6,6 +6,12 @@
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/1-basic-sql/raw_sql_mine/02-basic-day02.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/1-basic-sql/raw_sql_mine/03-basic-day03.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/dataware-daily-sql/1-basic-sql/raw_sql_mine/04-basic-day04.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/2-advance-sql/advance-00-create-table.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/2-advance-sql/raw_sql/advance-01-day01-dql.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/2-advance-sql/raw_sql_teacher(中）/advance-02-day02-dql.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/3-practice-sql/第2题--会话划分问题.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/3-practice-sql/第3题--间断连续登录用户问题.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/dataware-daily-sql/3-practice-sql/第4题--日期交叉问题.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/a_ods_原始数据层/01--ods--ddl--创建表.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/a_ods_原始数据层/02--ods--load--数据加载.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/b_dim_公共维度层/01--dim--ddl--创建表.sql" dialect="HiveQL" />
@@ -21,7 +27,13 @@
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/d_dws_汇总数据层/01_small_file_merge(小文件).sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/d_dws_汇总数据层/02--dws--load--数据加载.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/d_dws_汇总数据层/04--dws--最近N日汇总--包含本月至今.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/01--ads--ddl--创建表.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--1流量主题--SQL开发.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--2用户主题--SQL开发.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--3商品主题--SQL开发.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--4交易主题--SQL开发.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--5优惠卷主题--SQL开发.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/03--ads--exploded数据扩容.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/test.sql" dialect="HiveQL" />
   </component>
 </project>

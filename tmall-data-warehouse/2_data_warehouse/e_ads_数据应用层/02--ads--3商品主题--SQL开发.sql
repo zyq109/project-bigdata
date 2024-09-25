@@ -127,40 +127,40 @@ WITH
     stats_1d AS (
         -- step1. 最近1日统计
         SELECT
-            '2024-09-18' AS `dt`
+            '2024-09-13' AS `dt`
              , 1 AS `recent_days`
              , `tm_id`
              , `tm_name`
              , sum(order_count_1d) AS `order_count`
              , count(DISTINCT user_id) AS `order_user_count`
         FROM gmall.dws_trade_user_sku_order_1d
-        WHERE dt = '2024-09-18'
+        WHERE dt = '2024-09-13'
         GROUP BY tm_id, tm_name
     )
     , stats_7d AS (
         -- step2, 最近7日统计
         SELECT
-            '2024-09-18' AS `dt`
+            '2024-09-13' AS `dt`
              , 7 AS `recent_days`
              , `tm_id`
              , `tm_name`
              , sum(order_count_7d) AS `order_count`
              , count(DISTINCT user_id) AS `order_user_count`
         FROM gmall.dws_trade_user_sku_order_nd
-        WHERE dt = '2024-09-18'
+        WHERE dt = '2024-09-13'
         GROUP BY tm_id, tm_name
     )
    , stats_30d AS (
         -- step3, 最近30日统计
         SELECT
-            '2024-09-18' AS `dt`
+            '2024-09-13' AS `dt`
              , 30 AS `recent_days`
              , `tm_id`
              , `tm_name`
              , sum(order_count_30d) AS `order_count`
              , count(DISTINCT user_id) AS `order_user_count`
         FROM gmall.dws_trade_user_sku_order_nd
-        WHERE dt = '2024-09-18'
+        WHERE dt = '2024-09-13'
         GROUP BY tm_id, tm_name
     )
 -- step6. 插入保存
@@ -200,7 +200,7 @@ SELECT * FROM stats_30d
 WITH
    -- step1. 最近1日统计
     stats_1d AS (
-        SELECT '2024-09-18'            AS `dt`
+        SELECT '2024-09-13'            AS `dt`
              , 1                       AS `recent_days`
              , `category1_id`
              , `category1_name`
@@ -211,14 +211,14 @@ WITH
              , sum(order_count_1d)     AS `order_count`
              , count(DISTINCT user_id) AS `order_user_count`
         FROM gmall.dws_trade_user_sku_order_1d
-        WHERE dt = '2024-09-18'
+        WHERE dt = '2024-09-13'
         GROUP BY category1_id, category1_name,
                  category2_id, category2_name,
                  category3_id, category3_name
     )
    -- step2, 最近7日统计
    , stats_7d AS (
-    SELECT '2024-09-18'            AS `dt`
+    SELECT '2024-09-13'            AS `dt`
          , 7                       AS `recent_days`
          , `category1_id`
          , `category1_name`
@@ -229,14 +229,14 @@ WITH
          , sum(order_count_7d)     AS `order_count`
          , count(DISTINCT user_id) AS `order_user_count`
     FROM gmall.dws_trade_user_sku_order_nd
-    WHERE dt = '2024-09-18'
+    WHERE dt = '2024-09-13'
     GROUP BY category1_id, category1_name,
              category2_id, category2_name,
              category3_id, category3_name
 )
    -- step3, 最近30日统计
    , stats_30d AS (
-    SELECT '2024-09-18'            AS `dt`
+    SELECT '2024-09-13'            AS `dt`
          , 30                      AS `recent_days`
          , `category1_id`
          , `category1_name`
@@ -247,7 +247,7 @@ WITH
          , sum(order_count_30d)    AS `order_count`
          , count(DISTINCT user_id) AS `order_user_count`
     FROM gmall.dws_trade_user_sku_order_nd
-    WHERE dt = '2024-09-18'
+    WHERE dt = '2024-09-13'
     GROUP BY category1_id, category1_name,
              category2_id, category2_name,
              category3_id, category3_name

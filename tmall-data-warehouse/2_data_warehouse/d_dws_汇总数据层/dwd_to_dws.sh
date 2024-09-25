@@ -333,7 +333,7 @@ WITH
 INSERT OVERWRITE TABLE ${APP}.dws_user_user_login_td PARTITION(dt = '${do_date}')
 SELECT
     nvl(old.user_id, new.user_id) AS user_id,
-    if(new.user_id is null, old.login_date_last, '2024-04-19') AS login_date_last,
+    if(new.user_id is null, old.login_date_last, '${do_date}') AS login_date_last,
     nvl(old.login_count_td, 0) + nvl(new.login_count_1d, 0) AS login_count_td
 FROM old
 FULL OUTER JOIN new ON old.user_id = new.user_id;

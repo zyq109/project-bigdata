@@ -7,20 +7,67 @@
     统计周期	指标	说明
     最近1日	流失用户数	之前活跃过的用户，最近一段时间未活跃，就称为流失用户。
                         此处要求统计7日前（只包含7日前当天）活跃，但最近7日未活跃的用户总数。
-                        todo last_login_date = date_sub('2024-03-24', 7)
+                        todo login_date_last = date_sub('2024-09-13', 7)
 
     最近1日	回流用户数	之前的活跃用户，一段时间未活跃（流失），今日又活跃了，就称为回流用户。
                         此处要求统计回流用户总数。
-                        todo last_login_date = '2024-03-24'
+                        todo login_date_last = '2024-09-13'
                              AND
-                             yesterday_last_login_date < date_sub('2024-03-23', 7)
+                             前一天，用户为流式用户  yesterday_login_last_date <= date_sub('2024-09-17', 7)
 
     `dt`               STRING COMMENT '统计日期',
     `user_churn_count` BIGINT COMMENT '流失用户数',
     `user_back_count`  BIGINT COMMENT '回流用户数'
 */
 
-
+WITH
+    lose_data AS (
+        -- step1. 流失用户数：login_date_last = date_sub('2024-09-13', 7)
+        SELECT
+            '2024-09-13' AS dt
+             , sum(
+                if(login_date_last = date_sub('2024-09-13', 7), 1, 0)
+            ) AS user_churn_count
+        FROM gmall.dws_user_user_login_td
+        WHERE dt = '2024-09-13'
+    )
+    , today_active_user AS (
+        -- step2-1. 当日活跃用户
+        SELECT
+            DISTINCT user_id
+        FROM gmall.dws_user_user_login_td
+        WHERE dt = '2024-09-13'
+          AND login_date_last = '2024-09-13'
+    )
+    , yesterday_lose_user AS (
+        -- step2-2. 以昨日为准：获取流失用户
+        SELECT
+            DISTINCT user_id
+        FROM gmall.dws_user_user_login_td
+        WHERE dt = date_sub('2024-09-13', 1)
+          AND login_date_last <= date_sub('2024-09-13', 7)
+    )
+    , back_data AS (
+        -- step2-3. 关联获取回流用户
+        SELECT
+            '2024-09-13' AS dt
+            , count(ylu.user_id) AS user_back_count
+        FROM yesterday_lose_user ylu
+            JOIN today_active_user tau ON ylu.user_id = tau.user_id
+    )
+-- step5. 插入数据
+INSERT OVERWRITE TABLE gmall.ads_user_change
+-- step4. 历史统计
+SELECT dt, user_churn_count, user_back_count FROM gmall.ads_user_change
+UNION
+-- step3. 合并数据
+SELECT
+    ld.dt
+    , ld.user_churn_count
+    , bd.user_back_count
+FROM lose_data ld
+    JOIN back_data bd ON ld.dt = bd.dt
+;
 
 
 -- =============================================================================
@@ -51,9 +98,75 @@
 /*
     统计周期	        指标	        指标说明
     最近1、7、30日	新增用户数	略
+                    todo 今日注册用户，统计数量
+                        dwd_user_register_inc：date_id = 今日
 
     最近1、7、30日	活跃用户数	略
+                    todo 今日登录用户，统计数量
+                        dws_user_user_login_td：login_date_last = 今日
+
+    `dt`                STRING COMMENT '统计日期',
+    `recent_days`       BIGINT COMMENT '最近n日,1:最近1日,7:最近7日,30:最近30日',
+    `new_user_count`    BIGINT COMMENT '新增用户数',
+    `active_user_count` BIGINT COMMENT '活跃用户数'
 */
+WITH
+    new_user_data AS (
+        -- step1. 最近1\7\30日：新增用户数
+        SELECT
+            '2024-09-13' AS dt
+             , recent_days
+             , sum(if(date_id >= date_sub('2024-09-13', recent_days - 1), 1, 0)) AS new_user_count
+        FROM gmall.dwd_user_register_inc
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+        GROUP BY recent_days
+    )
+    , active_user_data AS (
+        -- step2. 最近1\7\30日：活跃用户数
+        SELECT
+            '2024-09-13' AS dt
+             , recent_days
+             , sum(if(login_date_last >= date_sub('2024-09-13', recent_days - 1), 1, 0)) AS active_user_count
+        FROM gmall.dws_user_user_login_td
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+        GROUP BY recent_days
+    )
+-- step5. 插入数据
+INSERT OVERWRITE TABLE gmall.ads_user_stats
+-- step4. 历史统计
+SELECT dt, recent_days, new_user_count, active_user_count FROM gmall.ads_user_stats
+UNION
+-- step3. 合并新增用户数和活跃用户数
+SELECT
+    aud.dt
+    , aud.recent_days
+    , aud.active_user_count
+    , nud.new_user_count
+FROM active_user_data aud
+    LEFT JOIN new_user_data nud ON aud.dt = nud.dt AND aud.recent_days = nud.recent_days
+;
+
+
+-- ========================= step1. 最近1日：新增用户数 =========================
+SELECT
+    '2024-09-13' AS dt
+     , 1 AS recent_days
+     , sum(if(date_id = '2024-09-13', 1, 0)) AS new_user_count
+FROM gmall.dwd_user_register_inc
+WHERE dt = '2024-09-13'
+;
+
+-- ========================= step2. 最近1日：活跃用户数 =========================
+SELECT
+    '2024-09-13' AS dt
+    , 1 AS recent_days
+    , sum(if(login_date_last = '2024-09-13', 1, 0)) AS active_user_count
+FROM gmall.dws_user_user_login_td
+WHERE dt = '2024-09-13'
+;
+
 
 
 
@@ -86,177 +199,56 @@
     由于DWS层，对上述事实表，按照用户粒度汇总，直接获取数据，进一步分析
  */
 
+-- ==================================== 优化写法 =================================
 WITH
-   -- todo 第1、最近1日统计
-    page_stats_1d AS (
+    page_stats AS (
         -- a. 浏览首页和商品详情页人数
         SELECT
-            '2024-09-11' AS dt
-             , 1 AS recent_days
+            '2024-09-13' AS dt
+             , recent_days
              -- 浏览首页人数
-             , SUM(IF(page_id = 'home', 1, 0)) AS home_count
+             , SUM(IF(dt >= date_sub('2024-09-13', recent_days - 1) AND page_id = 'home', 1, 0)) AS home_count
              -- 浏览商品详情页人数
-             , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
+             , SUM(IF(dt >= date_sub('2024-09-13', recent_days - 1) AND page_id = 'good_detail', 1, 0)) AS good_detail_count
         FROM gmall.dws_traffic_page_visitor_page_view_1d
-        WHERE dt = '2024-09-11'
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
           AND page_id IS NOT NULL
           AND page_id IN ('home', 'good_detail')
+        GROUP BY recent_days
     )
-   , cart_stats_1d AS (
-    -- b. 加入购物车人数
-    SELECT
-        '2024-09-11' AS dt
-         , 1 AS recent_days
-         , count(user_id) AS cart_count
-    FROM gmall.dws_trade_user_order_1d
-    WHERE dt = '2024-09-11'
-)
-   , order_stats_1d AS (
-    -- c. 下单人数
-    SELECT
-        '2024-09-11' AS dt
-         , 1 AS recent_days
-         , count(user_id) AS order_count
-    FROM gmall.dws_trade_user_cart_add_1d
-    WHERE dt = '2024-09-11'
-)
-   , payment_stats_1d AS (
-    -- d. 支付人数
-    SELECT
-        '2024-09-11' AS dt
-         , 1 AS recent_days
-         , count(user_id) AS payment_count
-    FROM gmall.dws_trade_user_payment_1d
-    WHERE dt = '2024-09-11'
-)
-   , stats_1d AS (
-        -- e. 合并人数统计
-        SELECT
-            ps.dt
-             , ps.recent_days
-             , ps.home_count
-             , ps.good_detail_count
-             , cs.cart_count
-             , os.order_count
-             , pms.payment_count
-        FROM page_stats_1d ps
-                 LEFT JOIN cart_stats_1d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
-                 LEFT JOIN order_stats_1d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
-                 LEFT JOIN payment_stats_1d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
-    )
-    -- todo 第2、最近7日统计
-    , page_stats_7d AS (
-        -- a. 浏览首页和商品详情页人数
-        SELECT
-            '2024-09-11' AS dt
-           , 7 AS recent_days
-            -- 浏览首页人数
-           , SUM(IF(page_id = 'home', 1, 0)) AS home_count
-            -- 浏览商品详情页人数
-           , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
-        FROM gmall.dws_traffic_page_visitor_page_view_1d
-        WHERE dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
-        AND page_id IS NOT NULL
-        AND page_id IN ('home', 'good_detail')
-    )
-   , cart_stats_7d AS (
+   , cart_stats AS (
         -- b. 加入购物车人数
         SELECT
-            '2024-09-11' AS dt
-           , 7 AS recent_days
-           , count(user_id) AS cart_count
+            '2024-09-13' AS dt
+             , recent_days
+             , count(DISTINCT IF(dt >= date_sub('2024-09-13', recent_days - 1), user_id, NULL)) AS cart_count
         FROM gmall.dws_trade_user_order_1d
-        WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+        GROUP BY recent_days
     )
-   , order_stats_7d AS (
+   , order_stats AS (
         -- c. 下单人数
         SELECT
-            '2024-09-11' AS dt
-           , 7 AS recent_days
-           , count(user_id) AS order_count
+            '2024-09-13' AS dt
+             , recent_days
+             , count(DISTINCT IF(dt >= date_sub('2024-09-13', recent_days - 1), user_id, NULL)) AS order_count
         FROM gmall.dws_trade_user_cart_add_1d
-        WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+        GROUP BY recent_days
     )
-   , payment_stats_7d AS (
+   , payment_stats AS (
         -- d. 支付人数
         SELECT
-            '2024-09-11' AS dt
-           , 7 AS recent_days
-           , count(user_id) AS payment_count
+            '2024-09-13' AS dt
+             , recent_days
+             , count(DISTINCT IF(dt >= date_sub('2024-09-13', recent_days - 1), user_id, NULL)) AS payment_count
         FROM gmall.dws_trade_user_payment_1d
-        WHERE  dt >= date_sub('2024-09-11', 6) AND dt <= '2024-09-11'
-    )
-   , stats_7d AS (
-        -- e. 合并人数统计
-        SELECT
-            ps.dt
-             , ps.recent_days
-             , ps.home_count
-             , ps.good_detail_count
-             , cs.cart_count
-             , os.order_count
-             , pms.payment_count
-        FROM page_stats_7d ps
-                 LEFT JOIN cart_stats_7d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
-                 LEFT JOIN order_stats_7d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
-                 LEFT JOIN payment_stats_7d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
-    )
-   -- todo 第3、最近30日统计
-   , page_stats_30d AS (
-        -- a. 浏览首页和商品详情页人数
-        SELECT
-            '2024-09-11' AS dt
-             , 30 AS recent_days
-             -- 浏览首页人数
-             , SUM(IF(page_id = 'home', 1, 0)) AS home_count
-             -- 浏览商品详情页人数
-             , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
-        FROM gmall.dws_traffic_page_visitor_page_view_1d
-        WHERE dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
-          AND page_id IS NOT NULL
-          AND page_id IN ('home', 'good_detail')
-    )
-   , cart_stats_30d AS (
-        -- b. 加入购物车人数
-        SELECT
-            '2024-09-11' AS dt
-             , 30 AS recent_days
-             , count(user_id) AS cart_count
-        FROM gmall.dws_trade_user_order_1d
-        WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
-    )
-   , order_stats_30d AS (
-        -- c. 下单人数
-        SELECT
-            '2024-09-11' AS dt
-             , 30 AS recent_days
-             , count(user_id) AS order_count
-        FROM gmall.dws_trade_user_cart_add_1d
-        WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
-    )
-   , payment_stats_30d AS (
-        -- d. 支付人数
-        SELECT
-            '2024-09-11' AS dt
-             , 30 AS recent_days
-             , count(user_id) AS payment_count
-        FROM gmall.dws_trade_user_payment_1d
-        WHERE  dt >= date_sub('2024-09-11', 29) AND dt <= '2024-09-11'
-    )
-   , stats_30d AS (
-        -- e. 合并人数统计
-        SELECT
-            ps.dt
-             , ps.recent_days
-             , ps.home_count
-             , ps.good_detail_count
-             , cs.cart_count
-             , os.order_count
-             , pms.payment_count
-        FROM page_stats_30d ps
-                 LEFT JOIN cart_stats_30d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
-                 LEFT JOIN order_stats_30d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
-                 LEFT JOIN payment_stats_30d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+                 LATERAL VIEW explode(array(1, 7, 30)) tmp AS recent_days
+        WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
+        GROUP BY recent_days
     )
 -- todo 第5、插入保存
 INSERT OVERWRITE TABLE gmall.ads_user_action
@@ -264,72 +256,23 @@ INSERT OVERWRITE TABLE gmall.ads_user_action
 SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count
 FROM gmall.ads_user_action
 UNION
-SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_1d
-UNION ALL
-SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_7d
-UNION ALL
-SELECT dt, recent_days, home_count, good_detail_count, cart_count, order_count, payment_count FROM stats_30d
-;
-
-
-
--- ==================================== 最近1日统计 ====================================
-WITH
-    page_stats_1d AS (
-        -- a. 浏览首页和商品详情页人数
-        SELECT
-            '2024-09-11' AS dt
-             , 1 AS recent_days
-             -- 浏览首页人数
-             , SUM(IF(page_id = 'home', 1, 0)) AS home_count
-             -- 浏览商品详情页人数
-             , SUM(IF(page_id = 'good_detail', 1, 0)) AS good_detail_count
-        FROM gmall.dws_traffic_page_visitor_page_view_1d
-        WHERE dt = '2024-09-11'
-          AND page_id IS NOT NULL
-          AND page_id IN ('home', 'good_detail')
-    )
-    , cart_stats_1d AS (
-        -- b. 加入购物车人数
-        SELECT
-            '2024-09-11' AS dt
-             , 1 AS recent_days
-             , count(user_id) AS cart_count
-        FROM gmall.dws_trade_user_order_1d
-        WHERE dt = '2024-09-11'
-    )
-    , order_stats_1d AS (
-        -- c. 下单人数
-        SELECT
-            '2024-09-11' AS dt
-             , 1 AS recent_days
-             , count(user_id) AS order_count
-        FROM gmall.dws_trade_user_cart_add_1d
-        WHERE dt = '2024-09-11'
-    )
-    , payment_stats_1d AS (
-        -- d. 支付人数
-            SELECT
-                '2024-09-11' AS dt
-                 , 1 AS recent_days
-                 , count(user_id) AS payment_count
-            FROM gmall.dws_trade_user_payment_1d
-            WHERE dt = '2024-09-11'
-    )
 -- e. 合并人数统计
 SELECT
     ps.dt
-    , ps.recent_days
-    , ps.home_count
-    , ps.good_detail_count
-    , cs.cart_count
-    , os.order_count
-    , pms.payment_count
-FROM page_stats_1d ps
-    LEFT JOIN cart_stats_1d cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
-    LEFT JOIN order_stats_1d os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
-    LEFT JOIN payment_stats_1d pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
+     , ps.recent_days
+     , ps.home_count
+     , ps.good_detail_count
+     , cs.cart_count
+     , os.order_count
+     , pms.payment_count
+FROM page_stats ps
+         LEFT JOIN cart_stats cs ON ps.dt = cs.dt AND ps.recent_days = cs.recent_days
+         LEFT JOIN order_stats os ON ps.dt = os.dt AND ps.recent_days = os.recent_days
+         LEFT JOIN payment_stats pms ON ps.dt = pms.dt AND ps.recent_days = pms.recent_days
 ;
+
+
+
 
 
 
@@ -359,7 +302,7 @@ WITH
         SELECT
             user_id, date_id
         FROM gmall.dwd_trade_order_detail_inc
-        WHERE dt >= date_sub('2024-09-18', 6) AND dt <= '2024-09-18'
+        WHERE dt >= date_sub('2024-09-13', 6) AND dt <= '2024-09-13'
         GROUP BY user_id, date_id
     )
     , tmp2 AS (
@@ -394,74 +337,11 @@ SELECT dt, recent_days, order_continuously_user_count FROM gmall.ads_order_conti
 UNION
 -- step5. 过滤、去重
 SELECT
-    '2024-09-18' AS dt
+    '2024-09-13' AS dt
     , 7 AS recent_days
     , count(DISTINCT user_id) AS order_continously_user_count
 FROM tmp4
 WHERE days >= 3
 ;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-WITH
--- step1. 去重：同一天下单多次，或一个订单多个商品
-    order_data AS (
-        SELECT
-            user_id, date_id
-        FROM gmall.dwd_trade_order_detail_inc
-        WHERE dt >= date_sub('2024-09-18', 6) AND dt <= '2024-09-18'
-        GROUP BY user_id, date_id
-    )
--- step2. 序号：每条数据加上编号，按照用户id分组，下单日期排序
-   , rank_data AS (
-    SELECT
-        user_id, date_id
-         , row_number() over (PARTITION BY user_id ORDER BY date_id) AS rnk
-    FROM order_data
-)
--- step3. 差值：计算下单日期与序号差值
-   , diff_data AS (
-    SELECT
-        user_id, date_id, rnk
-         , date_sub(date_id, rnk) AS date_diff
-    FROM rank_data
-)
--- step4. 分组：用户和日期差值、计数、过滤：大于等于3
-   , continue_data AS (
-    SELECT
-        user_id, date_diff
-         , collect_list(date_id) AS date_list
-         , count(user_id) AS continue_days
-    FROM diff_data
-    GROUP BY user_id, date_diff
-)
-INSERT OVERWRITE TABLE gmall.ads_order_continuously_user_count
-SELECT dt, recent_days, order_continuously_user_count FROM gmall.ads_order_continuously_user_count
-UNION
--- step5. 去重：考虑多次连续下单，比如1,2,3、5,6,7
-SELECT
-    '2024-09-18' AS dt
-     , 7 AS recent_days
-     , count(DISTINCT user_id) AS order_continuously_user_count
-FROM continue_data
-WHERE continue_days >= 3
-;
 

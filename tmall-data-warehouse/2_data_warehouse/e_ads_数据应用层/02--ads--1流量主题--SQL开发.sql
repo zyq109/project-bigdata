@@ -29,7 +29,7 @@ FROM gmall.ads_traffic_stats_by_channel
 UNION
 -- step1. 最近1日统计
 SELECT
-    '2024-09-18' AS dt
+    '2024-09-13' AS dt
      , 1 AS recent_days
      , channel
      , count(DISTINCT (mid_id)) AS uv_count
@@ -41,12 +41,12 @@ SELECT
      -- 跳出率 = 跳出数 / 会话数
      ,round(sum(if(page_count_1d = 1, 1, 0)) / count(session_id), 4) AS bounce_rate
 FROM gmall.dws_traffic_session_page_view_1d
-WHERE dt = '2024-09-18'
+WHERE dt = '2024-09-13'
 GROUP BY channel
 UNION ALL
 -- step2. 最近7日统计
 SELECT
-    '2024-09-18' AS dt
+    '2024-09-13' AS dt
      , 7 AS recent_days
      , channel
      , count(DISTINCT (mid_id)) AS uv_count
@@ -58,12 +58,12 @@ SELECT
      -- 跳出率 = 跳出数 / 会话数
      ,round(sum(if(page_count_1d = 1, 1, 0)) / count(session_id), 4) AS bounce_rate
 FROM gmall.dws_traffic_session_page_view_1d
-WHERE dt >= date_sub('2024-09-18', 6) AND dt <= '2024-09-18'
+WHERE dt >= date_sub('2024-09-13', 6) AND dt <= '2024-09-13'
 GROUP BY channel
 UNION ALL
 -- step3. 最近30日统计
 SELECT
-    '2024-09-18' AS dt
+    '2024-09-13' AS dt
      , 30 AS recent_days
      , channel
      , count(DISTINCT (mid_id)) AS uv_count
@@ -73,7 +73,7 @@ SELECT
      -- 跳出率 = 跳出数 / 会话数
      ,round(sum(if(page_count_1d = 1, 1, 0)) / count(session_id), 4) AS bounce_rate
 FROM gmall.dws_traffic_session_page_view_1d
-WHERE dt >= date_sub('2024-09-18', 29) AND dt <= '2024-09-18'
+WHERE dt >= date_sub('2024-09-13', 29) AND dt <= '2024-09-13'
 GROUP BY channel
 ;
 

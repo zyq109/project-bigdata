@@ -74,7 +74,7 @@ WHERE dt = '2024-09-13'
 WITH
    -- step1. 最近1日统计，从DWS汇总表
    stats_1d AS (
-        SELECT '2024-09-18'               AS `dt`
+        SELECT '2024-09-13'               AS `dt`
              , 1                          AS `recent_days`
              , `province_id`
              , `province_name`
@@ -84,12 +84,12 @@ WITH
              , sum(order_count_1d)        AS `order_count`
              , sum(order_total_amount_1d) AS `order_total_amount`
         FROM gmall.dws_trade_province_order_1d
-        WHERE dt = '2024-09-18'
+        WHERE dt = '2024-09-13'
         GROUP BY province_id, province_name, area_code, iso_code, iso_3166_2
     )
    -- step2. 最近7日统计，从DWS汇总表
    , stats_7d AS (
-    SELECT '2024-09-18'               AS `dt`
+    SELECT '2024-09-13'               AS `dt`
          , 7                          AS `recent_days`
          , `province_id`
          , `province_name`
@@ -99,12 +99,12 @@ WITH
          , sum(order_count_7d)        AS `order_count`
          , sum(order_total_amount_7d) AS `order_total_amount`
     FROM gmall.dws_trade_province_order_nd
-    WHERE dt = '2024-09-18'
+    WHERE dt = '2024-09-13'
     GROUP BY province_id, province_name, area_code, iso_code, iso_3166_2
 )
    -- step3. 最近30日统计，从DWS汇总表
    , stats_30d AS (
-    SELECT '2024-09-18'                AS `dt`
+    SELECT '2024-09-13'                AS `dt`
          , 30                          AS `recent_days`
          , `province_id`
          , `province_name`
@@ -114,7 +114,7 @@ WITH
          , sum(order_count_30d)        AS `order_count`
          , sum(order_total_amount_30d) AS `order_total_amount`
     FROM gmall.dws_trade_province_order_nd
-    WHERE dt = '2024-09-18'
+    WHERE dt = '2024-09-13'
     GROUP BY province_id, province_name, area_code, iso_code, iso_3166_2
 )
 -- c. 插入表，采用覆盖

@@ -355,7 +355,7 @@ case $1 in
 ;;
 "all")
     hive -e "${hive_tuning_sql}${dws_trade_user_sku_order_1d_sql}${dws_trade_user_order_1d_sql}${dws_trade_user_cart_add_1d_sql}${dws_trade_user_payment_1d_sql}${dws_trade_province_order_1d_sql}${dws_trade_user_sku_order_nd_sql}${dws_trade_province_order_nd_sql}${dws_trade_user_order_td_sql}${dws_user_user_login_td_sql}"
-    # hive -e "${hive_tuning_sql}${dws_traffic_session_page_view_1d_sql}${dws_traffic_page_visitor_page_view_1d_sql}"
+    hive -e "${hive_tuning_sql}${dws_traffic_session_page_view_1d_sql}${dws_traffic_page_visitor_page_view_1d_sql}"
 ;;
 esac
 
