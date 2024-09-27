@@ -1,0 +1,5 @@
+nodes:
+  - name: test-hive-job
+    type: command
+    config:
+      command: hive -e "SELECT * FROM gmall.ads_user_action"

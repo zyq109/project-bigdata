@@ -1,0 +1,5 @@
+nodes:
+  - name: node-shell
+    type: command
+    config:
+      command: echo "This is an email test."

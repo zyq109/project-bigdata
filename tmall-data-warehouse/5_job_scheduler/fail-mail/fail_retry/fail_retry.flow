@@ -1,0 +1,12 @@
+nodes:
+  - name: node-shell
+    type: command
+    config:
+      command: sh /not_exists.sh
+      retries: 3
+      retry.backoff: 10000
+
+
+# 如果执行任务失败，需要重试3次，重试的时间间隔10000ms
+# retries：重试次数
+# retry.backoff：重试的时间间隔

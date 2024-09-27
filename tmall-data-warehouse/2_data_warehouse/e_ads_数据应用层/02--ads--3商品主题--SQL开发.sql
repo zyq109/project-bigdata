@@ -150,7 +150,7 @@ WITH
         WHERE dt = '2024-09-13'
         GROUP BY tm_id, tm_name
     )
-   , stats_30d AS (
+    , stats_30d AS (
         -- step3, 最近30日统计
         SELECT
             '2024-09-13' AS `dt`
@@ -168,7 +168,7 @@ INSERT OVERWRITE TABLE gmall.ads_order_stats_by_tm
 -- step5. 历史统计
 SELECT * FROM gmall.ads_order_stats_by_tm
 UNION
--- step4. 合并数据
+-- step4. 合并数据ads_trade_stats
 SELECT * FROM stats_1d
 UNION ALL
 SELECT * FROM stats_7d

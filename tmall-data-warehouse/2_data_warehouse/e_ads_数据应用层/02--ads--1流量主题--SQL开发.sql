@@ -90,8 +90,8 @@ GROUP BY channel
 
 WITH
    -- todo 第1、最近1日统计
+   -- step1. 会话中数据加序号和页面ID
     tmp_1d1 AS (
-        -- step1. 会话中数据加序号和页面ID
         SELECT
             session_id, view_time, last_page_id
              , page_id
@@ -102,15 +102,15 @@ WITH
         FROM gmall.dwd_traffic_page_view_inc
         WHERE dt = '2024-09-11'
     )
+   -- step2. 拼接字符串，确定访问路径顺序
    , tmp_1d2 AS (
-        -- step2. 拼接字符串，确定访问路径顺序
         SELECT
             concat('step-', rk, ':', page_id) AS source_page
              , concat('step-', rk + 1, ':', next_page_id) AS target_page
         FROM tmp_1d1
     )
+   -- step3. 分组聚合
    , stats_1d AS (
-        -- step3. 分组聚合
         SELECT
             source_page, target_page, count(*) AS path_count
         FROM tmp_1d2

@@ -1,0 +1,12 @@
+nodes:
+  - name: test-job-a
+    type: command
+    config:
+      command: echo 'Execute Job A...................'
+
+  - name: test-job-b
+    type: command
+    dependsOn:
+      - test-job-a
+    config:
+      command: echo 'Execute Job B...................'

@@ -87,6 +87,54 @@ FROM lose_data ld
 2024-04-03	  200								1日$20#10%	 2日$10#5%
 */
 
+WITH
+    register_data AS (
+        -- step1. 当日以前的7日的注册用户
+        SELECT
+            date_id AS register_date
+             , user_id
+        FROM gmall.dwd_user_register_inc
+        WHERE dt >= date_sub('2024-09-18', 7) AND dt <= date_sub('2024-09-18', 1)
+        ORDER BY date_id
+    )
+   , login_data AS (
+    -- step2. 历史汇总表找出所有用户最后登录日期
+    SELECT
+        user_id
+    FROM gmall.dws_user_user_login_td
+    WHERE dt = '2024-09-13'
+      AND login_date_last = '2024-09-13'
+)
+   , join_data AS (
+    -- step3. 关联
+    SELECT
+        rd.user_id
+         , rd.register_date
+         , ld.user_id AS login_user_id
+    FROM register_data rd
+             LEFT JOIN login_data ld ON rd.user_id = ld.user_id
+)
+-- step6. 保存数据
+INSERT OVERWRITE TABLE gmall.ads_user_retention
+-- step5. 历史统计
+SELECT dt, create_date, retention_day, retention_count, new_user_count, retention_rate FROM gmall.ads_user_retention
+UNION
+-- step4. 计算留存用户和留存率
+SELECT
+    '2024-09-13' AS dt
+     -- 注册日期，第一次登录日期
+     , register_date AS create_date
+     -- 留存天数
+     , datediff('2024-09-13', register_date) AS retention_day
+     -- 留存数：今天登录的用户数
+     , sum(if(login_user_id IS NOT NULL, 1, 0)) AS retention_count
+     -- 注册新用户数
+     , count(user_id) AS new_user_count
+     -- 留存率 = 留存数 / 总数
+     , round(sum(if(login_user_id IS NOT NULL, 1, 0)) / count(user_id), 4) AS retention_rate
+FROM join_data
+GROUP BY register_date
+;
 
 
 
