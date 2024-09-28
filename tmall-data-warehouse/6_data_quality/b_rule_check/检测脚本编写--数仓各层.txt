@@ -1,0 +1,43 @@
+
+编写的单一规则检测脚本按照数仓分层进行集成，分别编写ODS层检测脚本，DWD层检测脚本和DIM层检测脚本。
+
+1. ODS层：check_ods.sh
+    ODS层需要检查的指标如下表所示。
+    表	            检查项目	    依据	            异常值下限	异常值上限
+---------------------------------------------------------------------------------
+ods_order_info_inc	同比增长	    数据总量	        -10%	    10%
+	                环比增长	    数据总量	        -10%	    50%
+                    值域检查	    final_amount	0	        100
+
+    week_on_week_volume.sh
+    day_on_day_volume.sh
+    range_value.sh
+sh check_ods.sh 2024-01-06
+
+
+2. DWD层：check_dwd.sh
+                        DWD层需要检查的项目下标所示。
+                        表	            检查项目	    依据	    异常值下限	异常值上限
+---------------------------------------------------------------------------------
+ods_order_detail_inc	空值检查	    id	    0	        10
+	                    重复值检查	id	    0	        5
+
+    duplicate_id.sh
+    null_id.sh
+sh check_dwd.sh 2023-07-10
+sh check_dwd.sh 2023-07-11
+sh check_dwd.sh 2023-07-12
+sh check_dwd.sh 2023-07-13
+
+
+3. DIM层：check_dim.sh
+    DIM层需要检查的项目如下表所示。
+    表	            检查项目	    依据	    异常值下限	异常值上限
+---------------------------------------------------------------------------------
+    dim_sku_full	空值检查	    id	    0	        10
+	                重复值检查	id	    0	        5
+
+    duplicate_id.sh
+    null_id.sh
+sh check_dim.sh
+

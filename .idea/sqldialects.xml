@@ -34,6 +34,8 @@
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--4交易主题--SQL开发.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/02--ads--5优惠卷主题--SQL开发.sql" dialect="HiveQL" />
     <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/e_ads_数据应用层/03--ads--exploded数据扩容.sql" dialect="HiveQL" />
-    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/test.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/2_data_warehouse/test.sql" dialect="HiveQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/3_data_export/01--ddl--创建表--mysql.sql" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/tmall-data-warehouse/4_report_visual/gmall_report--202409.sql" dialect="MySQL" />
   </component>
 </project>
