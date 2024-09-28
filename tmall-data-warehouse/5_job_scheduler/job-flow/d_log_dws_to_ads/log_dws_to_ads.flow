@@ -1,0 +1,5 @@
+nodes:
+  - name: log_dws_to_ads
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_dws_to_ads.sh ${dt}

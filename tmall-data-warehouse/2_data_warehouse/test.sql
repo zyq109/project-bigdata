@@ -85,3 +85,26 @@ SHOW PARTITIONS gmall.dwd_user_login_inc;
 
 
 
+
+
+-- 日志表
+SHOW PARTITIONS gmall.ods_log_inc;
+-- 日志表
+SHOW PARTITIONS gmall.dwd_traffic_page_view_inc;
+-- 日志表
+SHOW PARTITIONS gmall.dws_traffic_session_page_view_1d;
+
+SHOW PARTITIONS gmall.ads_traffic_stats_by_channel;
+
+SELECT
+    dt, recent_days, channel, uv_count, avg_duration_sec, avg_page_count, sv_count, bounce_rate
+FROM gmall.ads_traffic_stats_by_channel
+WHERE dt=2024-09-23
+LIMIT 10
+
+
+
+
+
+
+

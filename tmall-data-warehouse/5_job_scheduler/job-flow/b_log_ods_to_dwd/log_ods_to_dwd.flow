@@ -1,0 +1,5 @@
+nodes:
+  - name: log_ods_to_dwd
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_ods_to_dwd.sh ${dt}

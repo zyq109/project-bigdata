@@ -1,0 +1,5 @@
+nodes:
+  - name: log_dwd_to_dws
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_dwd_to_dws.sh ${dt}

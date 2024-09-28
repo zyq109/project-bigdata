@@ -1,0 +1,5 @@
+nodes:
+  - name: log_hdfs_to_ods
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_hdfs_to_ods.sh ${dt}

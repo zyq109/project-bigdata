@@ -1,0 +1,34 @@
+nodes:
+  - name: log_hdfs_to_ods
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_hdfs_to_ods.sh ${dt}
+
+  - name: log_ods_to_dwd
+    type: command
+    dependsOn:
+      - log_hdfs_to_ods
+    config:
+      command: /home/bwie/gmall_log_bin/log_ods_to_dwd.sh ${dt}
+
+  - name: log_dwd_to_dws
+    type: command
+    dependsOn:
+      - log_ods_to_dwd
+    config:
+      command: /home/bwie/gmall_log_bin/log_dwd_to_dws.sh ${dt}
+
+  - name: log_dws_to_ads
+    type: command
+    dependsOn:
+      - log_dwd_to_dws
+    config:
+      command: /home/bwie/gmall_log_bin/log_dws_to_ads.sh ${dt}
+
+  - name: log_ads_to_mysql
+    type: command
+    dependsOn:
+      - log_dws_to_ads
+    config:
+      command: /home/bwie/gmall_log_bin/log_ads_to_mysql.sh
+

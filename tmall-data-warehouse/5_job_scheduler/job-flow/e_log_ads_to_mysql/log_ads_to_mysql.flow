@@ -1,0 +1,5 @@
+nodes:
+  - name: log_ads_to_mysql
+    type: command
+    config:
+      command: /home/bwie/gmall_log_bin/log_ads_to_mysql.sh

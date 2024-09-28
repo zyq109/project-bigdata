@@ -15,6 +15,8 @@ Date: 2024-09-29 14:20:57
 
 SET FOREIGN_KEY_CHECKS=0;
 
+CREATE DATABASE IF NOT EXISTS gmall_report ;
+
 USE gmall_report ;
 -- ----------------------------
 -- Table structure for ads_coupon_stats

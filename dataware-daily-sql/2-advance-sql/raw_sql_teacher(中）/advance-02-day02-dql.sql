@@ -37,6 +37,48 @@ SHOW TABLES IN hive_sql_zg6;
     todo 函数：add_months、concat
 */
 
+WITH
+-- step1. 去重（考虑1天可能多次下单）
+    order_data AS (
+        SELECT
+            user_id, create_date
+        FROM hive_sql_zg6.order_info
+        GROUP BY user_id, create_date
+    )
+-- step2. 序号（用户id分组，日期升序排序，row_number开窗）
+   , rank_data AS (
+    SELECT
+        user_id, create_date
+         , row_number() over (PARTITION BY user_id ORDER BY create_date) AS rk
+    FROM order_data
+)
+-- step3. 差值（计算日期与序号差值）
+   , diff_data AS (
+    SELECT
+        user_id, create_date, rk
+         , date_sub(create_date, rk) AS date_diff
+    FROM rank_data
+)
+-- step4. 分组、计数
+   , cnt_data AS (
+    SELECT
+        user_id
+         , date_diff
+         , count(user_id) AS days
+         , collect_list(create_date) AS date_list
+    FROM diff_data
+    GROUP BY user_id, date_diff
+)
+-- step5. 过滤、去重
+SELECT
+    DISTINCT user_id
+--     user_id, days, date_list
+FROM cnt_data
+WHERE days >= 3
+;
+
+
+
 
 
 -- todo: 3）、查询每日新用户数

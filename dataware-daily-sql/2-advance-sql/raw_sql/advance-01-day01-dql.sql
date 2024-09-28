@@ -59,6 +59,40 @@ todo 思路：连续登录几天，每天日期与序号差值相同
 		品类ID（品类名称）、品类销售商品的种类数、销售量最好的商品、销售量
 */
 
+WITH
+-- step1. 统计每个商品销量
+    sku_stats AS (
+        SELECT
+            sku_id
+             , sum(sku_num) AS sum_sku_num
+        FROM hive_sql_zg6.order_detail
+        GROUP BY sku_id
+    )
+-- step2. 关联商品表
+   , sku_data AS (
+    SELECT
+        t1.sku_id
+         , t1.sum_sku_num
+         , t2.category_id
+    FROM sku_stats t1
+             LEFT JOIN hive_sql_zg6.sku_info t2 ON t1.sku_id = t2.sku_id
+)
+-- step3. 聚合开窗：品类的商品数量和品类中商品销量编号
+   , rank_data AS (
+    SELECT
+        sku_id, sum_sku_num, category_id
+         -- 品类的商品数量
+         , count(sku_id) OVER (PARTITION BY category_id) AS category_sku_count
+         , rank() over (PARTITION BY category_id ORDER BY sum_sku_num DESC) AS rk
+    FROM sku_data
+)
+-- step4. 过滤获取
+SELECT
+    category_id, category_sku_count, sku_id, sum_sku_num
+FROM rank_data
+WHERE rk = 1
+;
+
 
 
 -- todo: 4）、查询用户的累计消费金额及VIP等级
